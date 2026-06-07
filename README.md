@@ -8,13 +8,15 @@ A standalone Git backend library extracted from [GitHub Desktop](https://github.
 - **Full dugite replacement** — `exec.ts` uses direct `child_process.spawn('git', ...)` instead of the dugite npm package
 - **Pure CLI-based** — works with the user's installed Git, no native bindings
 - **TypeScript-first** — complete type definitions for all Git models and operations
-- **Zero Electron dependencies** — can be used in Node.js, Bun, or browser contexts
+- **Zero Electron dependencies** — can be used in Node.js or Bun
 
 ## Usage
 
+### As a local dependency
+
 ```typescript
-import { Repository } from '@git-chopstick/core/models/repository'
-import { getStatus } from '@git-chopstick/core/git/status'
+import { Repository } from '@git-chopstick/core/src/models/repository.js'
+import { getStatus } from '@git-chopstick/core/src/git/status.js'
 
 const repo = new Repository('/path/to/repo', 1)
 const status = await getStatus(repo)
@@ -23,7 +25,17 @@ console.log(`Branch: ${status.currentBranch}`)
 console.log(`Changed files: ${status.workingDirectory.files.length}`)
 ```
 
-Run the example:
+Install via `file:` dependency in your `package.json`:
+```json
+{
+  "dependencies": {
+    "@git-chopstick/core": "file:../path/to/git-core"
+  }
+}
+```
+
+### From within this repo
+
 ```bash
 npx tsx examples/get-status.ts /path/to/repo
 ```
