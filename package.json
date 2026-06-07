@@ -1,0 +1,20 @@
+{
+  "name": "@git-chopstick/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Git backend library extracted from GitHub Desktop",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "byline": "^5.0.0",
+    "ignore": "^7.0.5",
+    "memoize-one": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/byline": "^4.2.36",
+    "@types/node": "^22.19.20",
+    "typescript": "^5.9.3"
+  }
+}
