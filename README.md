@@ -1,4 +1,4 @@
-# @git-chopstick/core
+# git-chopstick-core
 
 A standalone Git backend library extracted from [GitHub Desktop](https://github.com/desktop/desktop). Provides TypeScript-first wrappers around the Git CLI for repository operations.
 
@@ -15,8 +15,8 @@ A standalone Git backend library extracted from [GitHub Desktop](https://github.
 ### As a local dependency
 
 ```typescript
-import { Repository } from '@git-chopstick/core/src/models/repository.js'
-import { getStatus } from '@git-chopstick/core/src/git/status.js'
+import { Repository } from 'git-chopstick-core/src/models/repository.js'
+import { getStatus } from 'git-chopstick-core/src/git/status.js'
 
 const repo = new Repository('/path/to/repo', 1)
 const status = await getStatus(repo)
@@ -29,7 +29,7 @@ Install via `file:` dependency in your `package.json`:
 ```json
 {
   "dependencies": {
-    "@git-chopstick/core": "file:../path/to/git-core"
+    "git-chopstick-core": "file:../path/to/git-core"
   }
 }
 ```
