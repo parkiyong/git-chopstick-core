@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.1.5] — 2026-06-13
+
+### Added
+- **Progress reporting**: Real `parse()` methods on all progress parsers (Checkout, Fetch, Pull, Push, Clone). Progress callbacks now receive percentage updates during long-running operations.
+- **`getCurrentBranch(path)`**: New helper in `rev-parse.ts` that returns the current branch name or `undefined` for detached HEAD.
+- **Integration tests**: 10 tests covering repository type detection, branch lookup, status parsing, commit history, branch CRUD, createCommit, and non-repo error handling. Run with `npm test`.
+- **Migration guide**: Added `docs/exec-to-git-migration.md` documenting the transition from `exec()` to `git()` with before/after examples.
+
+### Changed
+- **`exec()` removed from public API**: `exec()` is now an internal function used only by `core.ts`. Use `git()` instead — it's a strict superset with error handling, typed error codes, `successExitCodes`, and hook support.
+- **README**: Updated architecture diagram (progress 🟢), consumption patterns (no `exec`), known limitations (progress now real, tests now exist).
+
+### Fixed
+- **RevertProgressParser**: Now returns proper `IGitOutput | null` type.
+
+---
+
 ## [0.1.4] — 2026-06-13
 
 ### Added
@@ -96,4 +113,10 @@
 [0.1.2]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.2
 [0.1.1]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.1
 [0.1.0]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.0
-[Unreleased]: https://github.com/parkiyong/git-chopstick-core/compare/v0.1.4...HEAD
+[0.1.5]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.5
+[0.1.4]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.4
+[0.1.3]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.3
+[0.1.2]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.2
+[0.1.1]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.1
+[0.1.0]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.0
+[Unreleased]: https://github.com/parkiyong/git-chopstick-core/compare/v0.1.5...HEAD

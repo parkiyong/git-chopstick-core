@@ -1,5 +1,5 @@
-// ── Low-level execution API ──
-export { exec, spawnGit, parseError, parseBadConfigValueErrorInfo, ExecError, type IGitSpawnOptions } from './exec.js';
+// ── Low-level execution API (exec is internal — use git() from core.js instead) ──
+export { spawnGit, parseError, parseBadConfigValueErrorInfo, ExecError, type IGitSpawnOptions } from './exec.js';
 
 // ── Git operations ──
 export * from './add.js'

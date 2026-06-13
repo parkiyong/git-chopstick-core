@@ -233,7 +233,7 @@ try {
 | `reset` | `reset`, `resetPaths`, `unstageAll` | Reset operations |
 | `revert` | `revertCommit` | Revert a commit |
 | `rev-list` | `getAheadBehind`, `getBranchAheadBehind`, `revRange`, `revSymmetricDifference` | Commit range queries |
-| `rev-parse` | `getRepositoryType`, `getUpstreamRefForRef`, `getCurrentUpstreamRef` | Rev parsing |
+| `rev-parse` | `getRepositoryType`, `getCurrentBranch`, `getUpstreamRefForRef`, `getCurrentUpstreamRef` | Rev parsing / branch detection |
 | `rm` | `removeConflictedFile` | Remove files |
 | `squash` | `squash` | Interactive rebase squashing |
 | `stage` | `stageManualConflictResolution`, `stageResolvedConflictFiles` | Stage conflict resolutions |
@@ -279,12 +279,11 @@ try {
 
 This library is extracted directly from [GitHub Desktop](https://github.com/desktop/desktop), a mature Electron application. Some subsystems that depend on GitHub Desktop's specific runtime environment have been extracted as **stubs** — they compile and type-check correctly but don't provide real functionality:
 
-### 🟡 Progress Reporting (`src/lib/progress/`)
+### 🟢 Progress Reporting (`src/lib/progress/`)
 
-The progress parsers (`CheckoutProgressParser`, `FetchProgressParser`, `PullProgressParser`, `PushProgressParser`, `CloneProgressParser`, `RevertProgressParser`) are **stubbed**. Their `parse()` methods always return `null`, and `executionOptionsWithProgress` passes options through unchanged. This means:
+The progress parsers (`CheckoutProgressParser`, `FetchProgressParser`, `PullProgressParser`, `PushProgressParser`, `CloneProgressParser`, `RevertProgressParser`) now have real `parse()` methods that extract percentage and description from git's stderr output. Progress callbacks receive updates for clone, fetch, push, pull, and checkout operations.
 
-- Progress callbacks for clone, fetch, push, pull, and checkout will fire the initial `0%` callback but **never receive updates**
-- Long-running operations will complete correctly but without intermediate progress reporting
+Note: `git revert` does not produce progress output, so `RevertProgressParser` still returns `null` from its `parse()` method — this is correct behavior.
 
 ### 🟡 Git Hook Interception (`src/lib/hooks/`)
 
@@ -294,9 +293,9 @@ The progress parsers (`CheckoutProgressParser`, `FetchProgressParser`, `PullProg
 
 `withTrampolineEnv` is a **stub** that calls through without setting up the Git LFS trampoline environment. Git LFS operations may not work correctly as a result.
 
-### 🟡 No Tests
+### 🟢 Integration Tests
 
-There are no unit or integration tests yet. While the code is a faithful extraction of the stable GitHub Desktop codebase, there are no automated tests to verify the extraction.
+Integration tests are available in `src/__tests__/integration.test.ts` and run against real git repositories in temp directories. Run `npm test` to execute them.
 
 ---
 
@@ -318,9 +317,9 @@ src/
 └── lib/               ← Utilities: parsers, progress reporting, hooks, fs helpers
     ├── diff-parser.ts  ← Full diff parser (text/binary/image)
     ├── status-parser.ts ← Porcelain v2 status parser
-    ├── progress/       ← 🟡 Progress parsers (stubbed — see Limitations)
-    ├── hooks/          ← 🟡 Git hook env (stubbed — see Limitations)
-    └── trampoline/     ← 🟡 Git LFS trampoline (stubbed — see Limitations)
+    ├── progress/       ← 🟢 Progress parsers (real — see Known Limitations)
+    ├── hooks/          ← 🟡 Git hook env (stubbed — see Known Limitations)
+    └── trampoline/     ← 🟡 Git LFS trampoline (stubbed — see Known Limitations)
 ```
 
 ## Development
@@ -347,6 +346,8 @@ npx tsx examples/create-commit.ts /path/to/repo
 
 ## Consumption Patterns
 
+> Upgrading from v0.1.4? See the [exec → git() migration guide](./docs/exec-to-git-migration.md) if you were using `exec()` from the public API.
+
 ### Root barrel (recommended for most use cases)
 
 ```typescript
@@ -357,10 +358,13 @@ import { Repository, getStatus, createCommit, getBranches, merge, GitError, GitE
 ### Git subpath (low-level access)
 
 ```typescript
-// Raw git process execution (for operations not covered by wrappers)
-import { exec, parseError, spawnGit } from 'git-chopstick-core/git'
+// Low-level helpers (parse git errors, spawn streaming git processes)
+import { parseError, spawnGit } from 'git-chopstick-core/git'
 
-const result = await exec(['rev-parse', '--show-toplevel'], '/path/to/repo')
+// Use git() from the root barrel for most operations
+import { git } from 'git-chopstick-core'
+
+const result = await git(['rev-parse', '--show-toplevel'], '/path/to/repo', 'my-op')
 console.log(result.stdout)
 ```
 

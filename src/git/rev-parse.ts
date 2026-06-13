@@ -90,3 +90,26 @@ export const getCurrentUpstreamRef = (path: string) =>
 
 export const getCurrentUpstreamRemoteName = (path: string) =>
   getUpstreamRemoteNameForRef(path)
+
+/**
+ * Get the current branch name for the repository at the given path.
+ *
+ * Returns the branch name (e.g. `"main"`) if on a named branch,
+ * or `undefined` if HEAD is detached.
+ */
+export async function getCurrentBranch(
+  path: string
+): Promise<string | undefined> {
+  const result = await git(
+    ['symbolic-ref', '--short', 'HEAD'],
+    path,
+    'getCurrentBranch',
+    { successExitCodes: new Set([0, 128]) }
+  )
+
+  if (result.exitCode === 128) {
+    return undefined
+  }
+
+  return result.stdout.trim()
+}

@@ -1,5 +1,11 @@
+import { IGitOutput } from './index.js'
+
+/**
+ * Git revert does not produce progress output on stderr,
+ * so this parser remains effectively a stub for the interface.
+ */
 export class RevertProgressParser {
-  public parse(_line: string): any {
+  public parse(_line: string): IGitOutput | null {
     return null
   }
 
