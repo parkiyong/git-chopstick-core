@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.7] — 2026-06-13
+
+### Added
+- **Documentation included in package**: Added `docs/` to the `files` array in `package.json`. The migration guide (`docs/exec-to-git-migration.md`) and release skill (`docs/skills/release.md`) now ship with the installed package.
+
+---
+
 ## [0.1.6] — 2026-06-13
 
 ### Fixed
@@ -120,6 +127,7 @@
 [0.1.2]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.2
 [0.1.1]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.1
 [0.1.0]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.0
+[0.1.7]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.7
 [0.1.6]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.6
 [0.1.5]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.5
 [0.1.4]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.4
@@ -127,4 +135,4 @@
 [0.1.2]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.2
 [0.1.1]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.1
 [0.1.0]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.0
-[Unreleased]: https://github.com/parkiyong/git-chopstick-core/compare/v0.1.5...HEAD
+[Unreleased]: https://github.com/parkiyong/git-chopstick-core/compare/v0.1.7...HEAD

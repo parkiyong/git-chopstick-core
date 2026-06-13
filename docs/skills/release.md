@@ -47,7 +47,11 @@ Run all of these (use parallel agents):
 - `npm run typecheck` — must pass with zero errors
 - `npm run build` — must produce a clean `dist/`
 - `npm test` — all integration tests must pass
-- `npm pack --dry-run` — confirm `dist/` is included (expect ~351 files, ~700kB)
+- `npm pack --dry-run` — confirm all of:
+  - `dist/` is included (expect ~351 files, ~700kB)
+  - `CHANGELOG.md` and `docs/` appear in the file list
+  - `package.json`, `README.md`, `LICENSE` are present (npm includes these automatically)
+  - No unexpected files are leaking through (check for test artifacts, `.ts` sources outside `dist/`)
 
 If any fail, fix before proceeding.
 

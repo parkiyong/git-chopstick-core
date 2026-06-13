@@ -1,6 +1,6 @@
 {
   "name": "git-chopstick-core",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -32,7 +32,8 @@
   },
   "files": [
     "dist",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "docs"
   ],
   "description": "Git backend library extracted from GitHub Desktop",
   "scripts": {
