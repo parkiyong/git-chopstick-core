@@ -6,32 +6,19 @@ import { join } from 'path'
 import {
   Repository, getStatus, getCommits, getBranches,
   createCommit, createBranch, deleteLocalBranch, renameBranch,
-  getCurrentBranch, getRepositoryType,
+  getCurrentBranch, getRepositoryType, getAllTags,
 } from '../index.js'
+import {
+  setupFixtureRepo, cleanupFixtureRepo, git,
+} from './fixture-helpers.js'
 
 let repoPath: string
 let repo: Repository
 
-function git(args: string) {
-  execSync(`git ${args}`, { cwd: repoPath, stdio: 'pipe' })
-}
-
-function writeFile(path: string, content: string) {
-  writeFileSync(join(repoPath, path), content)
-}
-
 beforeAll(() => {
-  repoPath = mkdtempSync(join(tmpdir(), 'gcctest-'))
-  git('init -q')
-  git('config user.email test@test.test')
-  git('config user.name Test')
-
-  // Create an initial commit so we have history for detached HEAD tests
-  writeFile('README.md', '# test')
-  git('add README.md')
-  git('commit -m "initial"')
-
-  repo = new Repository(repoPath)
+  const fixture = setupFixtureRepo()
+  repoPath = fixture.repoPath
+  repo = fixture.repo
 })
 
 describe('getRepositoryType', () => {
@@ -52,16 +39,15 @@ describe('getRepositoryType', () => {
 describe('getCurrentBranch', () => {
   it('returns the current branch name', async () => {
     const branch = await getCurrentBranch(repoPath)
-    expect(branch).toBeTruthy()
-    expect(typeof branch).toBe('string')
+    expect(branch).toBe('main')
   })
 
   it('returns undefined when HEAD is detached', async () => {
-    git('checkout --detach')
+    git(repoPath, 'checkout --detach')
     const branch = await getCurrentBranch(repoPath)
     expect(branch).toBeUndefined()
     // Reset back to a branch for subsequent tests
-    git('checkout -')
+    git(repoPath, 'checkout main')
   })
 })
 
@@ -69,12 +55,11 @@ describe('getStatus', () => {
   it('returns a status with branch info', async () => {
     const status = await getStatus(repo)
     expect(status).toBeTruthy()
-    expect(status!.currentBranch).toBeTruthy()
-    expect(typeof status!.currentBranch).toBe('string')
+    expect(status!.currentBranch).toBe('main')
   })
 
   it('detects untracked files', async () => {
-    writeFile('untracked.txt', 'hello')
+    writeFileSync(join(repoPath, 'untracked.txt'), 'hello')
     const status = await getStatus(repo)
     expect(status!.workingDirectory.files.length).toBeGreaterThanOrEqual(1)
     const untracked = status!.workingDirectory.files.find(
@@ -92,46 +77,57 @@ describe('getStatus', () => {
 })
 
 describe('getCommits', () => {
-  it('returns commits in order', async () => {
-    // Create another commit so we have history to read
-    writeFile('commits-test.txt', 'data')
-    git('add commits-test.txt')
-    git('commit -m "test commit for getCommits"')
-
+  it('returns commits in order (fixture has 6 commits reachable from main)', async () => {
     const commits = await getCommits(repo, 'HEAD', 10)
-    expect(commits.length).toBeGreaterThanOrEqual(1)
-    expect(commits[0].summary).toBe('test commit for getCommits')
+    expect(commits.length).toBe(6)
     expect(commits[0].sha).toBeTruthy()
     expect(commits[0].author).toBeTruthy()
+    // The most recent commit should be the merge
+    expect(commits[0].summary).toBe('merge: feature/one into main')
+    // The initial commit should be the last one
+    expect(commits[5].summary).toBe('initial: add README and gitignore')
+  })
+
+  it('returns commits for feature/two branch', async () => {
+    const commits = await getCommits(repo, 'feature/two', 10)
+    expect(commits.length).toBeGreaterThanOrEqual(1)
+    expect(commits[0].summary).toBe('feat: feature two')
   })
 })
 
 describe('Branch operations', () => {
-  it('creates, lists, renames, and deletes branches', async () => {
-    // Create a branch
+  it('includes feature/one and feature/two', async () => {
+    const branches = await getBranches(repo)
+    const names = branches.map(b => b.nameWithoutRemote)
+    expect(names).toContain('main')
+    expect(names).toContain('feature/one')
+    expect(names).toContain('feature/two')
+  })
+
+  it('creates, renames, and deletes a branch', async () => {
     await createBranch(repo, 'test-feature', 'HEAD')
     let branches = await getBranches(repo)
-    const names = branches.map(b => b.name)
+    const names = branches.map(b => b.nameWithoutRemote)
     expect(names).toContain('test-feature')
 
     // Rename the branch
-    const featureBranch = branches.find(b => b.name === 'test-feature')!
+    const featureBranch = branches.find(b => b.nameWithoutRemote === 'test-feature')!
     await renameBranch(repo, featureBranch, 'test-feature-renamed')
     branches = await getBranches(repo)
-    expect(branches.map(b => b.name)).toContain('test-feature-renamed')
-    expect(branches.map(b => b.name)).not.toContain('test-feature')
+    expect(branches.map(b => b.nameWithoutRemote)).toContain('test-feature-renamed')
+    expect(branches.map(b => b.nameWithoutRemote)).not.toContain('test-feature')
 
     // Delete the branch
     await deleteLocalBranch(repo, 'test-feature-renamed')
     branches = await getBranches(repo)
-    expect(branches.map(b => b.name)).not.toContain('test-feature-renamed')
+    expect(branches.map(b => b.nameWithoutRemote)).not.toContain('test-feature-renamed')
   })
 })
 
 describe('createCommit', () => {
   it('creates a commit with files', async () => {
-    writeFile('commit-test.txt', 'commit data')
-    git('add commit-test.txt')
+    writeFileSync(join(repoPath, 'commit-test.txt'), 'commit data')
+    git(repoPath, 'add commit-test.txt')
 
     const status = await getStatus(repo)
     const files = status!.workingDirectory.files.filter(
@@ -140,17 +136,23 @@ describe('createCommit', () => {
 
     const sha = await createCommit(repo, 'feat: add commit-test.txt', files)
     expect(sha).toBeTruthy()
-    // createCommit returns the abbreviated SHA from git commit output (7+ chars)
     expect(sha.length).toBeGreaterThanOrEqual(7)
 
-    // Verify the commit exists — the full SHA from getCommits should start
-    // with the abbreviated SHA returned by createCommit
+    // Verify the commit exists
     const commits = await getCommits(repo, 'HEAD', 5)
     expect(commits[0].sha.startsWith(sha)).toBe(true)
     expect(commits[0].summary).toBe('feat: add commit-test.txt')
   })
 })
 
+describe('Tag operations', () => {
+  it('lists tags from the fixture', async () => {
+    const tags = await getAllTags(repo)
+    expect(tags.size).toBeGreaterThanOrEqual(1)
+    expect(tags.has('v0.1.0')).toBe(true)
+  })
+})
+
 afterAll(() => {
-  execSync(`rm -rf ${repoPath}`)
+  cleanupFixtureRepo(repoPath)
 })

@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.9] — 2026-06-13
+
+### Added
+- **Test fixtures**: Created `src/__tests__/fixtures/test-repo.bundle` — a pre-built git bundle with 6 commits, 3 branches, and 1 tag for faster test setup. Added `src/__tests__/fixture-helpers.ts` with `setupFixtureRepo()` to clone the bundle in ~10ms instead of building a repo from scratch. Refactored integration tests to use the fixture.
+- **Release skill moved**: Moved from `docs/skills/release.md` to `.agents/skills/release-npm.md` and renamed to `release-npm`.
+- **Global default branch**: Set `git config --global init.defaultBranch main`.
+
+### Changed
+- **Fixture rebuild instructions**: Updated to use `git init -q` (relies on global `init.defaultBranch`).
+- **`prepublishOnly` now runs tests**: Integration tests run during `npm publish` to catch regressions before they ship.
+
+---
+
 ## [0.1.8] — 2026-06-13
 
 ### Added
@@ -129,6 +142,7 @@
 
 ---
 
+[0.1.9]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.9
 [0.1.8]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.8
 [0.1.7]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.7
 [0.1.6]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.6
@@ -138,4 +152,4 @@
 [0.1.2]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.2
 [0.1.1]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.1
 [0.1.0]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.0
-[Unreleased]: https://github.com/parkiyong/git-chopstick-core/compare/v0.1.8...HEAD
+[Unreleased]: https://github.com/parkiyong/git-chopstick-core/compare/v0.1.9...HEAD

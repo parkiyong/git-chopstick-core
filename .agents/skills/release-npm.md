@@ -1,11 +1,11 @@
 ---
-name: release
-description: Automated release workflow for git-chopstick-core — version bump, changelog, build, validation, and npm publish.
+name: release-npm
+description: Automated npm release workflow for git-chopstick-core — version bump, changelog, build, validation, and publish.
 ---
 
-# Release: git-chopstick-core
+# Release (npm): git-chopstick-core
 
-> Loaded via `skill("release")`. Run this whenever you need to publish a new release.
+> Loaded via `skill("release-npm")`. Run this whenever you need to publish a new release to npm.
 
 ## Process
 
@@ -77,6 +77,7 @@ npm publish
 
 ## Notes
 
+- This project uses `main` as its default branch. All git operations in this skill assume `main`.
 - `prepublishOnly` runs `npm run typecheck && npm test && npm run build` automatically — integration tests must pass before publish can proceed. This catches API regressions, broken imports, and test failures before they ship.
   You still validate in step 5 beforehand rather than relying solely on `prepublishOnly`.
 - If this is the first release in a session, run `setup-matt-pocock-skills` first to configure issue tracker context.
