@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.8] — 2026-06-13
+
+### Added
+- **Test files included in package**: Added `src/__tests__/` to the `files` array in `package.json`. Integration tests ship with the installed package so consumers can run `npm test` to verify the package works for their environment.
+
+---
+
 ## [0.1.7] — 2026-06-13
 
 ### Added
@@ -122,11 +129,7 @@
 
 ---
 
-[0.1.4]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.4
-[0.1.3]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.3
-[0.1.2]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.2
-[0.1.1]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.1
-[0.1.0]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.0
+[0.1.8]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.8
 [0.1.7]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.7
 [0.1.6]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.6
 [0.1.5]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.5
@@ -135,4 +138,4 @@
 [0.1.2]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.2
 [0.1.1]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.1
 [0.1.0]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.0
-[Unreleased]: https://github.com/parkiyong/git-chopstick-core/compare/v0.1.7...HEAD
+[Unreleased]: https://github.com/parkiyong/git-chopstick-core/compare/v0.1.8...HEAD

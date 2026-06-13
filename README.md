@@ -26,7 +26,7 @@ npm install file:../path/to/git-chopstick-core
 ```typescript
 import { Repository, getStatus, GitError } from 'git-chopstick-core'
 
-const repo = new Repository('/path/to/repo', 1)
+const repo = new Repository('/path/to/repo')
 
 try {
   const status = await getStatus(repo)
@@ -46,7 +46,7 @@ try {
 ```typescript
 import { Repository, getStatus } from 'git-chopstick-core'
 
-const repo = new Repository('/path/to/repo', 1)
+const repo = new Repository('/path/to/repo')
 const status = await getStatus(repo)
 
 if (!status) {
@@ -81,7 +81,7 @@ if (status.rebaseInternalState) {
 ```typescript
 import { Repository, getStatus, createCommit } from 'git-chopstick-core'
 
-const repo = new Repository('/path/to/repo', 1)
+const repo = new Repository('/path/to/repo')
 const status = await getStatus(repo)
 
 // Stage and commit all tracked files
@@ -98,7 +98,7 @@ import {
   deleteLocalBranch, renameBranch, getBranches
 } from 'git-chopstick-core'
 
-const repo = new Repository('/path/to/repo', 1)
+const repo = new Repository('/path/to/repo')
 
 // Create a branch
 await createBranch(repo, 'feature/new-feature', 'main')
@@ -125,7 +125,7 @@ import {
   abortMerge, getMergeBase, isMergeHeadSet
 } from 'git-chopstick-core'
 
-const repo = new Repository('/path/to/repo', 1)
+const repo = new Repository('/path/to/repo')
 
 const result = await merge(repo, 'feature/new-feature')
 
@@ -149,7 +149,7 @@ import {
   Repository, push, pull, getRemotes, getStatus
 } from 'git-chopstick-core'
 
-const repo = new Repository('/path/to/repo', 1)
+const repo = new Repository('/path/to/repo')
 const [remote] = await getRemotes(repo)
 const status = await getStatus(repo)
 
@@ -167,7 +167,7 @@ import {
   Repository, merge, GitError, GitErrorCodes
 } from 'git-chopstick-core'
 
-const repo = new Repository('/path/to/repo', 1)
+const repo = new Repository('/path/to/repo')
 
 try {
   await merge(repo, 'other-branch')
@@ -328,11 +328,14 @@ src/
 # Type-check
 npm run typecheck
 
+# Run integration tests (uses vitest, creates temp git repos)
+npm test
+
 # Build (compile TypeScript → dist/)
 npm run build
 
-# Clean rebuild (build already cleans automatically)
-npm run build
+# Package contents dry-run (verify files before publish)
+npm pack --dry-run
 
 # Run examples (uses tsx for source-level execution)
 npx tsx examples/get-status.ts /path/to/repo

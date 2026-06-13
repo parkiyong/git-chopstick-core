@@ -49,7 +49,7 @@ Run all of these (use parallel agents):
 - `npm test` — all integration tests must pass
 - `npm pack --dry-run` — confirm all of:
   - `dist/` is included (expect ~351 files, ~700kB)
-  - `CHANGELOG.md` and `docs/` appear in the file list
+  - `CHANGELOG.md`, `docs/`, and `src/__tests__/integration.test.ts` appear in the file list
   - `package.json`, `README.md`, `LICENSE` are present (npm includes these automatically)
   - No unexpected files are leaking through (check for test artifacts, `.ts` sources outside `dist/`)
 
@@ -77,5 +77,6 @@ npm publish
 
 ## Notes
 
-- `prepublishOnly` runs `npm run typecheck && npm run build` automatically, so no need to build before publish — but validate first anyway.
+- `prepublishOnly` runs `npm run typecheck && npm test && npm run build` automatically — integration tests must pass before publish can proceed. This catches API regressions, broken imports, and test failures before they ship.
+  You still validate in step 5 beforehand rather than relying solely on `prepublishOnly`.
 - If this is the first release in a session, run `setup-matt-pocock-skills` first to configure issue tracker context.

@@ -1,6 +1,6 @@
 {
   "name": "git-chopstick-core",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -33,7 +33,8 @@
   "files": [
     "dist",
     "CHANGELOG.md",
-    "docs"
+    "docs",
+    "src/__tests__"
   ],
   "description": "Git backend library extracted from GitHub Desktop",
   "scripts": {
@@ -41,7 +42,7 @@
     "build": "npm run clean && tsc",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "prepublishOnly": "npm run typecheck && npm run build"
+    "prepublishOnly": "npm run typecheck && npm test && npm run build"
   },
   "dependencies": {
     "byline": "^5.0.0",
