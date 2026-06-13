@@ -129,7 +129,7 @@ async function formatGitIgnoreContents(
   const autocrlf = await getConfigValue(repository, 'core.autocrlf')
   const safecrlf = await getConfigValue(repository, 'core.safecrlf')
 
-  return new Promise<string>((resolve, reject) => {
+  return new Promise<string>((resolve, _reject) => {
     if (autocrlf === 'true' && safecrlf === 'true') {
       // based off https://stackoverflow.com/a/141069/1363815
       const normalizedText = text.replace(/\r\n|\n\r|\n|\r/g, '\r\n')

@@ -1,5 +1,5 @@
 export class RevertProgressParser {
-  public parse(line: string): any {
+  public parse(_line: string): any {
     return null
   }
 

@@ -135,7 +135,7 @@ export async function checkPatch(
 export async function discardChangesFromSelection(
   repository: Repository,
   filePath: string,
-  diff: ITextDiff,
+  _diff: ITextDiff,
   selection: DiffSelection
 ) {
   const file = new WorkingDirectoryFileChange(filePath, { kind: AppFileStatusKind.Modified }, selection)

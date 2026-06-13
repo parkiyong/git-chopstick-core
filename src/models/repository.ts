@@ -5,7 +5,7 @@ export class Repository {
 
   public constructor(
     public readonly path: string,
-    public readonly id: number
+    public readonly id: number = 0
   ) {
     this.name = Path.basename(path)
   }

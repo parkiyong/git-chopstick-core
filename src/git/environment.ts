@@ -1,6 +1,5 @@
 import { envForAuthentication } from './authentication.js'
 import { resolveGitProxy as resolveGitProxyFn } from '../lib/resolve-git-proxy.js'
-import { getHTMLURL } from '../lib/api.js'
 import { Repository } from '../models/repository.js'
 import { IRemote } from '../models/remote.js'
 
@@ -70,7 +69,7 @@ export async function envForRemoteOperation(remoteUrl: string | null): Promise<R
 export async function envForProxy(
   remoteUrl: string,
   env: NodeJS.ProcessEnv = process.env,
-  resolve: (url: string) => Promise<string | undefined> = async (url: string) => resolveGitProxyFn() ?? undefined
+  resolve: (_url: string) => Promise<string | undefined> = async (_url: string) => resolveGitProxyFn() ?? undefined
 ): Promise<Record<string, string | undefined> | undefined> {
   const protocolMatch = /^(https?):\/\//i.exec(remoteUrl)
 

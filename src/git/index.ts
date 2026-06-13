@@ -1,3 +1,7 @@
+// ── Low-level execution API ──
+export { exec, spawnGit, parseError, parseBadConfigValueErrorInfo, ExecError, type IGitSpawnOptions } from './exec.js';
+
+// ── Git operations ──
 export * from './add.js'
 export * from './apply.js'
 export * from './branch.js'

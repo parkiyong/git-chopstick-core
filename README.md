@@ -298,10 +298,6 @@ The progress parsers (`CheckoutProgressParser`, `FetchProgressParser`, `PullProg
 
 There are no unit or integration tests yet. While the code is a faithful extraction of the stable GitHub Desktop codebase, there are no automated tests to verify the extraction.
 
-### 🟡 Not Published on npm
-
-The library is currently available only via git URL or `file:` dependency. No npm release has been published.
-
 ---
 
 ## Architecture
@@ -343,6 +339,42 @@ npm run build
 npx tsx examples/get-status.ts /path/to/repo
 npx tsx examples/branch-operations.ts /path/to/repo
 npx tsx examples/create-commit.ts /path/to/repo
+```
+
+## Status
+
+> **Pre-1.0** — The public API (`exports` map, barrel exports, error types) is stabilizing but may see minor breaking changes before 1.0. See [CHANGELOG.md](./CHANGELOG.md) for version history. Tested with TypeScript 5.7+.
+
+## Consumption Patterns
+
+### Root barrel (recommended for most use cases)
+
+```typescript
+// All 45+ git operations, domain models, error types
+import { Repository, getStatus, createCommit, getBranches, merge, GitError, GitErrorCodes } from 'git-chopstick-core'
+```
+
+### Git subpath (low-level access)
+
+```typescript
+// Raw git process execution (for operations not covered by wrappers)
+import { exec, parseError, spawnGit } from 'git-chopstick-core/git'
+
+const result = await exec(['rev-parse', '--show-toplevel'], '/path/to/repo')
+console.log(result.stdout)
+```
+
+### Models only
+
+```typescript
+import { Commit, Branch, BranchType, AppFileStatusKind } from 'git-chopstick-core'
+```
+
+### Granular (for bundle size)
+
+```typescript
+import { getCommits } from 'git-chopstick-core/git/log'
+import { getBranches } from 'git-chopstick-core/git/for-each-ref'
 ```
 
 ### Consumption Notes

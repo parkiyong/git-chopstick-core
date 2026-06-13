@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.1.4] — 2026-06-13
+
+### Added
+- **Public exec API**: Exported `exec`, `spawnGit`, `parseError`, `parseBadConfigValueErrorInfo`, `ExecError` from the git barrel for low-level Git execution.
+- **Repository.id default**: `Repository` constructor `id` parameter now defaults to `0` — no longer requires a placeholder value.
+- **Consumption patterns**: Documented 4 import patterns in README: root barrel, git subpath, models only, and granular subpath imports.
+- **Status section**: Added pre-1.0 status note with TypeScript 5.7+ compatibility to README.
+
+### Changed
+- **TypeScript strictness**: Enabled `noUnusedLocals` and `noUnusedParameters` in `tsconfig.json` to catch dead code. Fixed 5 newly detected unused variables.
+- **prepublishOnly**: Now runs `npm run typecheck && npm run build` to prevent shipping type-broken packages.
+- **README**: Removed stale "Not Published on npm" section (package is published).
+
+### Fixed
+- **Unused variables**: Fixed 5 TS6133 errors caught by new strict settings in `apply.ts`, `environment.ts`, `gitignore.ts`, `progress/revert.ts`.
+
+---
+
 ## [0.1.3] — 2026-06-13
 
 ### Changed
@@ -73,8 +91,9 @@
 
 ---
 
+[0.1.4]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.4
 [0.1.3]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.3
 [0.1.2]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.2
 [0.1.1]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.1
 [0.1.0]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.0
-[Unreleased]: https://github.com/parkiyong/git-chopstick-core/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/parkiyong/git-chopstick-core/compare/v0.1.4...HEAD

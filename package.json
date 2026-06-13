@@ -1,6 +1,6 @@
 {
   "name": "git-chopstick-core",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -38,7 +38,7 @@
     "clean": "rm -rf dist",
     "build": "npm run clean && tsc",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run typecheck && npm run build"
   },
   "dependencies": {
     "byline": "^5.0.0",
