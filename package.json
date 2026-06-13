@@ -1,24 +1,42 @@
 {
   "name": "git-chopstick-core",
-  "version": "0.1.2",
-  
+  "version": "0.1.3",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./src/index.ts",
-      "types": "./src/index.ts"
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./git": {
+      "import": "./dist/git/index.js",
+      "types": "./dist/git/index.d.ts"
+    },
+    "./models": {
+      "import": "./dist/models/index.js",
+      "types": "./dist/models/index.d.ts"
+    },
+    "./models/diff": {
+      "import": "./dist/models/diff/index.js",
+      "types": "./dist/models/diff/index.d.ts"
+    },
+    "./lib/progress": {
+      "import": "./dist/lib/progress/index.js",
+      "types": "./dist/lib/progress/index.d.ts"
     },
     "./*": {
-      "import": "./src/*",
-      "types": "./src/*"
+      "import": "./dist/*.js",
+      "types": "./dist/*.d.ts"
     }
   },
-  "files": ["dist", "src"],
+  "files": [
+    "dist"
+  ],
   "description": "Git backend library extracted from GitHub Desktop",
   "scripts": {
-    "build": "tsc",
+    "clean": "rm -rf dist",
+    "build": "npm run clean && tsc",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "npm run build"
   },
@@ -26,6 +44,18 @@
     "byline": "^5.0.0",
     "ignore": "^7.0.5",
     "memoize-one": "^6.0.0"
+  },
+  "peerDependencies": {
+    "@types/byline": "*",
+    "@types/node": ">=20.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@types/byline": {
+      "optional": true
+    },
+    "@types/node": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@types/byline": "^4.2.36",

@@ -147,19 +147,6 @@ export function mapStatus(
 
   if (statusCode === '??') return { kind: 'untracked', submoduleStatus }
 
-  const sc = (code: string, idx: 'index' | 'workingTree') => {
-    const map: Record<string, GitStatusEntry> = {
-      'M': GitStatusEntry.Modified,
-      'A': GitStatusEntry.Added,
-      'D': GitStatusEntry.Deleted,
-      'R': GitStatusEntry.Renamed,
-      'C': GitStatusEntry.Copied,
-      '.': GitStatusEntry.Unchanged,
-      'U': GitStatusEntry.UpdatedButUnmerged,
-    }
-    return map[code] ?? GitStatusEntry.Modified
-  }
-
   const pairs: Record<string, () => FileEntry> = {
     '.M': () => ({ kind: 'ordinary', type: 'modified', index: GitStatusEntry.Unchanged, workingTree: GitStatusEntry.Modified, submoduleStatus }),
     'M.': () => ({ kind: 'ordinary', type: 'modified', index: GitStatusEntry.Modified, workingTree: GitStatusEntry.Unchanged, submoduleStatus }),

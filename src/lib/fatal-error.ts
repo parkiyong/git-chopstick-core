@@ -2,7 +2,7 @@ export function fatalError(msg: string): never {
   throw new Error(msg)
 }
 
-export function assertNever(x: never, message: string): never {
+export function assertNever(_x: never, message: string): never {
   throw new Error(message)
 }
 

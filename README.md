@@ -19,7 +19,7 @@ npm install git-chopstick-core
 npm install file:../path/to/git-chopstick-core
 ```
 
-> **Note:** Not yet published on npm. Use a `file:` dependency or git URL.
+> **Note:** Published on npm as `git-chopstick-core`. Use a `file:` dependency for local development.
 
 ## Quick Start
 
@@ -237,7 +237,7 @@ try {
 | `rm` | `removeConflictedFile` | Remove files |
 | `squash` | `squash` | Interactive rebase squashing |
 | `stage` | `stageManualConflictResolution`, `stageResolvedConflictFiles` | Stage conflict resolutions |
-| `stash` | `getStashes`, `createDesktopStashEntry`, `popStashEntry`, `getStashedFiles`, `dropDesktopStashEntry` | Stash management |
+| `stash` | `getStashes`, `createStashEntry`, `popStashEntry`, `getStashedFiles`, `dropStashEntry` | Stash management |
 | `status` | `getStatus` | Repository status |
 | `submodule` | `updateSubmodulesAfterOperation`, `listSubmodules`, `resetSubmodulePaths` | Submodule operations |
 | `tag` | `createTag`, `deleteTag`, `getAllTags` | Tag management |
@@ -336,8 +336,8 @@ npm run typecheck
 # Build (compile TypeScript → dist/)
 npm run build
 
-# Clean rebuild
-rm -rf dist && npm run build
+# Clean rebuild (build already cleans automatically)
+npm run build
 
 # Run examples (uses tsx for source-level execution)
 npx tsx examples/get-status.ts /path/to/repo
@@ -347,8 +347,8 @@ npx tsx examples/create-commit.ts /path/to/repo
 
 ### Consumption Notes
 
-- **Source-level consumption** (recommended for TypeScript projects): Import from `'git-chopstick-core'` — the `exports` field in `package.json` points to TypeScript source. This works with `moduleResolution: "bundler"` in `tsconfig.json`.
-- **Compiled consumption**: Run `npm run build` first, then the compiled output in `dist/` can be imported directly by Node.js ESM.
+- **Compiled consumption** (recommended): Import from `'git-chopstick-core'` — the `exports` field in `package.json` points to the compiled output in `dist/`. Works with Node.js ESM and bundlers alike.
+- **Run examples**: After building, use `npx tsx` to execute the examples: `npx tsx examples/get-status.ts /path/to/repo`.
 
 ## Dependencies
 

@@ -159,8 +159,8 @@ export async function exec(
     }
 
     child.on('close', (exitCode) => {
-      const stdoutBuf = Buffer.concat(stdoutChunks)
-      const stderrBuf = Buffer.concat(stderrChunks)
+      const stdoutBuf = Buffer.concat(stdoutChunks as readonly Uint8Array[])
+      const stderrBuf = Buffer.concat(stderrChunks as readonly Uint8Array[])
 
       const enc = (options as any)?.encoding
       const isBuffer = enc === 'buffer'

@@ -1,4 +1,3 @@
-import { ChildProcess } from 'child_process'
 import { IGitExecutionOptions } from '../../git/core.js'
 
 export async function executionOptionsWithProgress(
