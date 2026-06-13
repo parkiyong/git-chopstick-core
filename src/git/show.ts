@@ -31,6 +31,34 @@ export const getBlobContents = (
   }).then(r => r.stdout)
 
 /**
+ * Get the text contents of a file at a specific commit, using a path string.
+ *
+ * Returns the file contents as a string, or throws if the file doesn't
+ * exist in the given commit.
+ *
+ * @param repoPath - The repository path on disk
+ * @param sha      - The commit SHA to read the file from
+ * @param file     - The file path relative to the repository root
+ */
+export async function getFileAtCommit(
+  repoPath: string,
+  sha: string,
+  file: string
+): Promise<string> {
+  const result = await git(
+    ['show', `${sha}:${file}`],
+    repoPath,
+    'getFileAtCommit',
+    { successExitCodes: new Set([0, 1]) }
+  )
+
+  if (result.exitCode !== 0) {
+    throw new Error(`File '${file}' not found at commit ${sha}`)
+  }
+
+  return result.stdout
+}
+/**
  * Retrieve some or all binary contents of a blob from the repository
  * at a given reference, commit, or tree. This is almost identical
  * to the getBlobContents method except that it supports only reading

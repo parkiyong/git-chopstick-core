@@ -3,6 +3,12 @@ import { Repository } from '../models/repository.js'
 import { IRemote } from '../models/remote.js'
 import { envForRemoteOperation } from './environment.js'
 
+/** A tag with its name and the commit SHA it points to. */
+export type TagEntry = {
+  name: string
+  sha: string
+}
+
 /**
  * Create a new tag on the given target commit.
  *
@@ -33,6 +39,36 @@ export async function deleteTag(
   const args = ['tag', '-d', name]
 
   await git(args, repository.path, 'deleteTag')
+}
+
+/**
+ * Get all tags in the repository at the given path.
+ *
+ * Returns an array of tag entries. Uses the same normalization as
+ * `getAllTags` (resolving annotated tag ^{} suffixes).
+ */
+export async function getTags(
+  path: string
+): Promise<ReadonlyArray<TagEntry>> {
+  const result = await git(['show-ref', '--tags', '-d'], path, 'getTags', {
+    successExitCodes: new Set([0, 1, 128]),
+  })
+
+  if (result.exitCode !== 0 || result.stdout.trim().length === 0) {
+    return []
+  }
+
+  const tagMap = new Map<string, string>()
+
+  for (const line of result.stdout.trim().split('\n')) {
+    const [sha, ref] = line.split(' ')
+    if (!sha || !ref) continue
+
+    const name = ref.replace(/^refs\/tags\//, '').replace(/\^\{\}$/, '')
+    tagMap.set(name, sha)
+  }
+
+  return Array.from(tagMap, ([name, sha]) => ({ name, sha }))
 }
 
 /**

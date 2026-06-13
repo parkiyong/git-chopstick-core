@@ -11,7 +11,11 @@ import {
   addRemote, removeRemote, setRemoteURL,
   merge, MergeResult,
   rebase, RebaseResult,
-  getStashes, createDesktopStashEntry, popStashEntry,
+  getStashes, getStashesByPath,
+  createDesktopStashEntry, popStashEntry,
+  getTags, getFileAtCommit,
+  getChangedFilesFlat, getChangedFiles,
+  appFileStatusToString, AppFileStatusKind,
 } from '../index.js'
 import {
   setupFixtureRepo, cleanupFixtureRepo, git,
@@ -159,6 +163,181 @@ describe('Tag operations', () => {
     const tags = await getAllTags(repo)
     expect(tags.size).toBeGreaterThanOrEqual(1)
     expect(tags.has('v0.1.0')).toBe(true)
+  })
+
+  it('getTags returns the same tags as getAllTags', async () => {
+    const tags = await getTags(repoPath)
+    expect(tags.length).toBeGreaterThanOrEqual(1)
+
+    const v010 = tags.find(t => t.name === 'v0.1.0')
+    expect(v010).toBeTruthy()
+    expect(v010!.sha).toMatch(/^[a-f0-9]{40}$/)
+
+    // Verify consistency with getAllTags
+    const allTags = await getAllTags(repo)
+    expect(tags.length).toBe(allTags.size)
+    for (const t of tags) {
+      expect(allTags.get(t.name)).toBe(t.sha)
+    }
+  })
+
+  it('getTags returns empty array for a tag-less repo', async () => {
+    const noTagPath = mkdtempSync(join(tmpdir(), 'gcctest-notags-'))
+    execSync(`git init ${noTagPath}`, { stdio: 'pipe' })
+    execSync(
+      `git -C ${noTagPath} commit --allow-empty -m 'init'`,
+      { stdio: 'pipe' }
+    )
+    const tags = await getTags(noTagPath)
+    expect(tags).toEqual([])
+    execSync(`rm -rf ${noTagPath}`)
+  })
+
+  it('getTags returns empty array for a non-repo path', async () => {
+    const nonRepoPath = mkdtempSync(join(tmpdir(), 'gcctest-nonrepo-'))
+    const tags = await getTags(nonRepoPath)
+    expect(tags).toEqual([])
+    execSync(`rm -rf ${nonRepoPath}`)
+  })
+})
+
+describe('getFileAtCommit', () => {
+  it('reads README.md at HEAD', async () => {
+    const content = await getFileAtCommit(repoPath, 'HEAD', 'README.md')
+    expect(content).toContain('# Test Repo')
+  })
+
+  it('reads a file at the initial commit', async () => {
+    const commits = await getCommits(repo, 'HEAD', 10)
+    const initialSha = commits[commits.length - 1].sha
+    const content = await getFileAtCommit(repoPath, initialSha, 'README.md')
+    expect(content).toContain('# Test Repo')
+  })
+
+  it('reads src/index.js at a commit where it exists', async () => {
+    // The second commit adds src/index.js with 'console.log("hi")'
+    const commits = await getCommits(repo, 'HEAD', 10)
+    // Second-to-last commit has the initial version
+    const secondCommit = commits[commits.length - 2].sha
+    const content = await getFileAtCommit(repoPath, secondCommit, 'src/index.js')
+    expect(content.trim()).toBe('console.log("hi")')
+  })
+
+  it('throws for a file that does not exist at the given commit', async () => {
+    await expect(
+      getFileAtCommit(repoPath, 'HEAD', 'nonexistent-file.txt')
+    ).rejects.toThrow()
+  })
+})
+
+describe('getChangedFilesFlat', () => {
+  it('returns flat file changes for the merge commit', async () => {
+    const commits = await getCommits(repo, 'HEAD', 10)
+    // The merge commit merged feature/one (which added feature-one.txt)
+    const mergeSha = commits[0].sha
+    const flat = await getChangedFilesFlat(repo, mergeSha)
+
+    expect(flat.length).toBeGreaterThanOrEqual(1)
+
+    // Each entry should have path and statusKind
+    for (const f of flat) {
+      expect(f).toHaveProperty('path')
+      expect(f).toHaveProperty('statusKind')
+      expect(Object.values(AppFileStatusKind)).toContain(f.statusKind)
+      // oldPath should only be present for Renamed/Copied files
+      if (f.statusKind === AppFileStatusKind.Renamed || f.statusKind === AppFileStatusKind.Copied) {
+        expect(f.oldPath).toBeTruthy()
+      } else {
+        expect(f.oldPath).toBeUndefined()
+      }
+    }
+  })
+
+  it('matches structure from getChangedFiles', async () => {
+    const commits = await getCommits(repo, 'HEAD', 10)
+    const mergeSha = commits[0].sha
+
+    const [flat, full] = await Promise.all([
+      getChangedFilesFlat(repo, mergeSha),
+      getChangedFiles(repo, mergeSha),
+    ])
+
+    expect(flat.length).toBe(full.files.length)
+
+    for (let i = 0; i < flat.length; i++) {
+      expect(flat[i].path).toBe(full.files[i].path)
+      expect(flat[i].statusKind).toBe(full.files[i].status.kind)
+
+      if (
+        full.files[i].status.kind === AppFileStatusKind.Renamed ||
+        full.files[i].status.kind === AppFileStatusKind.Copied
+      ) {
+        expect(flat[i].oldPath).toBe(full.files[i].status.oldPath)
+      }
+    }
+  })
+
+  it('throws for an unborn HEAD', async () => {
+    const unbornPath = mkdtempSync(join(tmpdir(), 'gcctest-unborn-'))
+    execSync(`git init ${unbornPath}`, { stdio: 'pipe' })
+    const unbornRepo = new Repository(unbornPath, 1)
+    // Cannot get changed files for a commit that doesn't exist
+    await expect(
+      getChangedFilesFlat(unbornRepo, 'HEAD')
+    ).rejects.toThrow()
+    execSync(`rm -rf ${unbornPath}`)
+  })
+})
+
+describe('getStashesByPath', () => {
+  it('returns empty stashes when no stash exists', async () => {
+    const result = await getStashesByPath(repoPath)
+    expect(result.desktopEntries).toEqual([])
+    expect(result.stashEntryCount).toBe(0)
+  })
+
+  it('returns same result as getStashes after creating a stash', async () => {
+    // Create a working directory change
+    writeFileSync(join(repoPath, 'stash-by-path-test.txt'), 'stash me')
+    git(repoPath, 'add stash-by-path-test.txt')
+
+    await createDesktopStashEntry(repo, 'main', [], null)
+
+    const byPath = await getStashesByPath(repoPath)
+    const byRepo = await getStashes(repo)
+
+    expect(byPath.desktopEntries.length).toBe(byRepo.desktopEntries.length)
+    expect(byPath.stashEntryCount).toBe(byRepo.stashEntryCount)
+
+    // Verify the entry has expected fields
+    const entry = byPath.desktopEntries[0]
+    expect(entry.branchName).toBe('main')
+    expect(entry.stashSha).toMatch(/^[a-f0-9]{40}$/)
+
+    // Clean up: pop the stash, unstage, and remove the test file
+    await popStashEntry(repo, entry.stashSha)
+    git(repoPath, 'reset HEAD -- stash-by-path-test.txt')
+    execSync(`rm -f ${join(repoPath, 'stash-by-path-test.txt')}`)
+  })
+
+  it('returns empty for a non-repo path', async () => {
+    const nonRepoPath = mkdtempSync(join(tmpdir(), 'gcctest-nonrepo-'))
+    const result = await getStashesByPath(nonRepoPath)
+    expect(result.desktopEntries).toEqual([])
+    expect(result.stashEntryCount).toBe(0)
+    execSync(`rm -rf ${nonRepoPath}`)
+  })
+})
+
+describe('appFileStatusToString', () => {
+  it('maps each status kind to a human-readable string', () => {
+    expect(appFileStatusToString({ kind: AppFileStatusKind.New })).toBe('Added')
+    expect(appFileStatusToString({ kind: AppFileStatusKind.Modified })).toBe('Modified')
+    expect(appFileStatusToString({ kind: AppFileStatusKind.Deleted })).toBe('Deleted')
+    expect(appFileStatusToString({ kind: AppFileStatusKind.Renamed })).toBe('Renamed')
+    expect(appFileStatusToString({ kind: AppFileStatusKind.Copied })).toBe('Copied')
+    expect(appFileStatusToString({ kind: AppFileStatusKind.Conflicted })).toBe('Conflicted')
+    expect(appFileStatusToString({ kind: AppFileStatusKind.Untracked })).toBe('Untracked')
   })
 })
 

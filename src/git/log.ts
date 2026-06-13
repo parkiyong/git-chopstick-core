@@ -216,6 +216,36 @@ export interface IChangesetData {
   readonly linesDeleted: number
 }
 
+/**
+ * A flattened file change record, suitable for serialization or UI lists.
+ */
+export type FlatFileChange = {
+  path: string
+  statusKind: AppFileStatusKind
+  oldPath?: string
+}
+
+/**
+ * A flattened variant of `getChangedFiles` that returns simple objects
+ * instead of `CommittedFileChange` class instances.
+ *
+ * Consumers that just need path + status kind + optional old path can use
+ * this instead of mapping `CommittedFileChange.status` themselves.
+ */
+export async function getChangedFilesFlat(
+  repository: Repository,
+  sha: string
+): Promise<ReadonlyArray<FlatFileChange>> {
+  const { files } = await getChangedFiles(repository, sha)
+  return files.map(f => ({
+    path: f.path,
+    statusKind: f.status.kind,
+    ...('oldPath' in f.status && f.status.oldPath !== undefined
+      ? { oldPath: f.status.oldPath }
+      : {}),
+  }))
+}
+
 /** Get the files that were changed in the given commit. */
 export async function getChangedFiles(
   repository: Repository,

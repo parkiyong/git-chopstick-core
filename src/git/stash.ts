@@ -26,7 +26,8 @@ export const DesktopStashEntryMarker = '!!GitHub_Desktop'
  */
 const desktopStashEntryMessageRe = /!!GitHub_Desktop<(.+)>$/
 
-type StashResult = {
+/** The result of listing stash entries. */
+export type StashResult = {
   /** The stash entries created by Desktop */
   readonly desktopEntries: ReadonlyArray<IStashEntry>
 
@@ -38,11 +39,13 @@ type StashResult = {
 }
 
 /**
- * Get the list of stash entries created by Desktop in the current repository
- * using the default ordering of refs (which is LIFO ordering),
+ * Get the list of stash entries for a repository path.
+ * Uses the default ordering of refs (which is LIFO ordering),
  * as well as the total amount of stash entries.
  */
-export async function getStashes(repository: Repository): Promise<StashResult> {
+export async function getStashesByPath(
+  path: string
+): Promise<StashResult> {
   const { formatArgs, parse } = createLogParser({
     name: '%gD',
     stashSha: '%H',
@@ -53,13 +56,11 @@ export async function getStashes(repository: Repository): Promise<StashResult> {
 
   const result = await git(
     ['log', '-g', ...formatArgs, 'refs/stash', '--'],
-    repository.path,
+    path,
     'getStashEntries',
     { successExitCodes: new Set([0, 128]) }
   )
 
-  // There's no refs/stashes reflog in the repository or it's not
-  // even a repository. In either case we don't care
   if (result.exitCode === 128) {
     return { desktopEntries: [], stashEntryCount: 0 }
   }
@@ -85,6 +86,15 @@ export async function getStashes(repository: Repository): Promise<StashResult> {
   }
 
   return { desktopEntries, stashEntryCount: entries.length - 1 }
+}
+
+/**
+ * Get the list of stash entries created by Desktop in the current repository
+ * using the default ordering of refs (which is LIFO ordering),
+ * as well as the total amount of stash entries.
+ */
+export async function getStashes(repository: Repository): Promise<StashResult> {
+  return getStashesByPath(repository.path)
 }
 
 /**

@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.1.11] — 2026-06-13
+
+### Added
+- **`getTags(path)`**: New path-based helper in `tag.ts` returning `ReadonlyArray<TagEntry>` (`{name, sha}[]`). Uses `git show-ref --tags -d` with annotated-tag normalization. Returns `[]` for tag-less repos and non-repo paths.
+- **`getStashesByPath(path)`**: Path-based stash listing in `stash.ts`. `getStashes(repository)` delegates to it internally. `StashResult` type now exported.
+- **`getFileAtCommit(repoPath, sha, file)`**: New helper in `show.ts` returning file content as `string` via `git show ${sha}:${file}`. Throws with descriptive message for non-existent files.
+- **`appFileStatusToString(status)`**: New helper in `models/status.ts` converting `AppFileStatus` to human-readable strings (Added, Modified, Deleted, Renamed, Copied, Conflicted, Untracked).
+- **`getChangedFilesFlat(repository, sha)`**: New helper in `log.ts` returning `ReadonlyArray<FlatFileChange>` (`{path, statusKind, oldPath?}`). Wraps `getChangedFiles` and flattens the `CommittedFileChange.status` union.
+- **`examples/commit-file-browser.ts`**: CLI demo walking through the "Browse file tree at any commit" feature using `getFileAtCommit`, `getChangedFilesFlat`, and `getCommits`.
+- **Integration tests**: 14 new tests covering `getTags` (3), `getFileAtCommit` (4), `getChangedFilesFlat` (3), `getStashesByPath` (3), and `appFileStatusToString` (1). Total: 45 tests.
+
+### Fixed
+- **`show.js` missing from git barrel**: `src/git/index.ts` now exports `show.js`, making `getFileAtCommit` (and `getBlobContents`/`getPartialBlobContents`) available through the root barrel.
+- **`getTags` exit code 128**: Non-repo paths now return `[]` instead of throwing, by adding exit code 128 to `successExitCodes`.
+
+### Changed
+- **README**: Updated API reference for `tag.ts`, `stash.ts`, `show.ts`, `log.ts`, and domain models table.
+
+---
+
 ## [0.1.10] — 2026-06-13
 
 ### Added
@@ -155,6 +175,7 @@
 
 ---
 
+[0.1.11]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.11
 [0.1.10]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.10
 [0.1.9]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.9
 [0.1.8]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.8
@@ -166,4 +187,4 @@
 [0.1.2]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.2
 [0.1.1]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.1
 [0.1.0]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.0
-[Unreleased]: https://github.com/parkiyong/git-chopstick-core/compare/v0.1.10...HEAD
+[Unreleased]: https://github.com/parkiyong/git-chopstick-core/compare/v0.1.11...HEAD

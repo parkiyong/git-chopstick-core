@@ -72,6 +72,30 @@ export type AppFileStatus =
   | ConflictedFileStatus
   | UntrackedFileStatus
 
+/**
+ * Convert an AppFileStatus to a human-readable string.
+ *
+ * Examples: "Added", "Modified", "Deleted", "Renamed", "Copied", "Conflicted", "Untracked"
+ */
+export function appFileStatusToString(status: AppFileStatus): string {
+  switch (status.kind) {
+    case AppFileStatusKind.New:
+      return 'Added'
+    case AppFileStatusKind.Modified:
+      return 'Modified'
+    case AppFileStatusKind.Deleted:
+      return 'Deleted'
+    case AppFileStatusKind.Renamed:
+      return 'Renamed'
+    case AppFileStatusKind.Copied:
+      return 'Copied'
+    case AppFileStatusKind.Conflicted:
+      return 'Conflicted'
+    case AppFileStatusKind.Untracked:
+      return 'Untracked'
+  }
+}
+
 export type SubmoduleStatus = {
   readonly commitChanged: boolean
   readonly modifiedChanges: boolean

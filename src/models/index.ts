@@ -25,6 +25,7 @@ export {
   WorkingDirectoryFileChange,
   WorkingDirectoryStatus,
   FileChange,
+  appFileStatusToString,
   isConflictedFileStatus,
   isConflictWithMarkers,
   GitStatusEntry,

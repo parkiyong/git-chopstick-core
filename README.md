@@ -220,7 +220,7 @@ try {
 | `init` | `initGitRepository` | Initialize a repo |
 | `interpret-trailers` | `parseRawUnfoldedTrailers`, `isCoAuthoredByTrailer`, `getTrailerSeparatorCharacters` | Git trailer parsing |
 | `lfs` | `installGlobalLFSFilters`, `isUsingLFS`, `isTrackedByLFS`, `filesNotTrackedByLFS` | Git LFS support |
-| `log` | `getCommits`, `getCommit`, `getChangedFiles`, `getAuthors` | Commit history |
+| `log` | `getCommits`, `getCommit`, `getChangedFiles`, `getChangedFilesFlat`, `getAuthors` | Commit history |
 | `merge` | `merge`, `getMergeBase`, `abortMerge` | Merge branches |
 | `merge-tree` | `determineMergeability` | Test mergeability without merging |
 | `pull` | `pull` | Pull from remote |
@@ -237,10 +237,10 @@ try {
 | `rm` | `removeConflictedFile` | Remove files |
 | `squash` | `squash` | Interactive rebase squashing |
 | `stage` | `stageManualConflictResolution`, `stageResolvedConflictFiles` | Stage conflict resolutions |
-| `stash` | `getStashes`, `createStashEntry`, `popStashEntry`, `getStashedFiles`, `dropStashEntry` | Stash management |
+| `stash` | `getStashes`, `getStashesByPath`, `createStashEntry`, `popStashEntry`, `getStashedFiles`, `dropStashEntry` | Stash management |
 | `status` | `getStatus` | Repository status |
 | `submodule` | `updateSubmodulesAfterOperation`, `listSubmodules`, `resetSubmodulePaths` | Submodule operations |
-| `tag` | `createTag`, `deleteTag`, `getAllTags` | Tag management |
+| `tag` | `createTag`, `deleteTag`, `getTags`, `getAllTags` | Tag management |
 | `update-index` | `stageFiles` | Stage files |
 | `update-ref` | `updateRef`, `deleteRef` | Ref updates |
 | `var` | `getAuthorIdentity` | Git var queries |
@@ -257,6 +257,8 @@ try {
 | `Branch` | class | Branch with upstream tracking info |
 | `BranchType` | enum | `Local` or `Remote` |
 | `AppFileStatusKind` | enum | `New`, `Modified`, `Deleted`, `Renamed`, `Copied`, `Conflicted`, `Untracked` |
+| `appFileStatusToString` | fn | Converts `AppFileStatus` to human-readable string |
+| `FlatFileChange` | type | `{ path: string; statusKind: AppFileStatusKind; oldPath?: string }` |
 | `FileChange` | class | Base file change model |
 | `WorkingDirectoryFileChange` | class | Uncommitted file change with diff selection |
 | `CommittedFileChange` | class | File change from a commit |
