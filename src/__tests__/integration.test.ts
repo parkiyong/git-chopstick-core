@@ -4,7 +4,7 @@ import { execSync } from 'child_process'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import {
-  Repository, getStatus, getCommits, getBranches,
+  Repository, getRepositories, getStatus, getWorkingDirectoryChanges, getWorkingDirectoryChangesDetailed, fileChangeSummaryToWorkingDirectoryFile, DiffSelectionType, getCommits, getBranches,
   createCommit, createBranch, deleteLocalBranch, renameBranch,
   getCurrentBranch, getRepositoryType, getRepositorySummary,
   getRemoteUrl, getRemotesFromPath, getAllTags,
@@ -86,6 +86,116 @@ describe('getStatus', () => {
     const result = await getStatus(new Repository(nonRepoPath))
     expect(result).toBeNull()
     execSync(`rm -rf ${nonRepoPath}`)
+  })
+})
+
+describe('getWorkingDirectoryChanges', () => {
+  it('returns flattened changes for a repo with modified files', async () => {
+    // Modify an existing file and create a new (untracked) one
+    writeFileSync(join(repoPath, 'README.md'), 'modified content')
+    writeFileSync(join(repoPath, 'new-file.txt'), 'new content')
+
+    const changes = await getWorkingDirectoryChanges(repo)
+
+    expect(changes.length).toBeGreaterThanOrEqual(2)
+
+    const modified = changes.find(c => c.path === 'README.md')
+    expect(modified).toBeTruthy()
+    expect(modified!.status).toBe('modified')
+    expect(modified!.oldPath).toBeUndefined()
+
+    const untracked = changes.find(c => c.path === 'new-file.txt')
+    expect(untracked).toBeTruthy()
+    // Unstaged new files show as 'untracked' (not 'added' — that requires staging)
+    expect(untracked!.status).toBe('untracked')
+
+    // Clean up
+    git(repoPath, 'checkout -- README.md')
+    execSync(`rm -f ${join(repoPath, 'new-file.txt')}`)
+  })
+
+  it('throws for a non-repo path', async () => {
+    const nonRepoPath = mkdtempSync(join(tmpdir(), 'gcctest-nonrepo-'))
+    await expect(
+      getWorkingDirectoryChanges(new Repository(nonRepoPath))
+    ).rejects.toThrow()
+    execSync(`rm -rf ${nonRepoPath}`)
+  })
+
+  it('includes oldPath for renamed files', async () => {
+    // Use an existing tracked file to avoid creating a commit
+    git(repoPath, 'mv README.md readme-backup.md')
+
+    const changes = await getWorkingDirectoryChanges(repo)
+    const renamed = changes.find(c => c.path === 'readme-backup.md')
+    expect(renamed).toBeTruthy()
+    expect(renamed!.status).toBe('renamed')
+    expect(renamed!.oldPath).toBe('README.md')
+
+    // Clean up: reverse the rename
+    git(repoPath, 'mv readme-backup.md README.md')
+  })
+})
+
+describe('getWorkingDirectoryChangesDetailed', () => {
+  it('includes selectionType and selection for each file', async () => {
+    // Modify an existing file
+    writeFileSync(join(repoPath, 'README.md'), 'detailed test')
+
+    const changes = await getWorkingDirectoryChangesDetailed(repo)
+
+    expect(changes.length).toBeGreaterThanOrEqual(1)
+
+    const modified = changes.find(c => c.path === 'README.md')
+    expect(modified).toBeTruthy()
+    expect(modified!.status).toBe('modified')
+    expect(modified!.selectionType).toBe(DiffSelectionType.All)
+    expect(modified!.selection).toBeTruthy()
+    // DiffSelection should report the file as fully selected
+    expect(modified!.selection.isSelected(0)).toBe(true)
+
+    // Clean up
+    git(repoPath, 'checkout -- README.md')
+  })
+
+  it('round-trips through fileChangeSummaryToWorkingDirectoryFile', async () => {
+    // Create a file and stage it so it appears as 'added'
+    writeFileSync(join(repoPath, 'stage-test.txt'), 'stage me')
+    git(repoPath, 'add stage-test.txt')
+
+    const changes = await getWorkingDirectoryChangesDetailed(repo)
+    const added = changes.find(c => c.path === 'stage-test.txt')
+    expect(added).toBeTruthy()
+    expect(added!.status).toBe('added')
+
+    // Round-trip back to WorkingDirectoryFileChange
+    const wdfc = fileChangeSummaryToWorkingDirectoryFile(added!)
+    expect(wdfc.path).toBe('stage-test.txt')
+    expect(wdfc.selection.getSelectionType()).toBe(DiffSelectionType.All)
+    // Verify the status was properly reconstructed
+    expect(wdfc.status.kind).toBe(AppFileStatusKind.New)
+
+    // Clean up: unstage and remove
+    git(repoPath, 'reset HEAD -- stage-test.txt')
+    execSync(`rm -f ${join(repoPath, 'stage-test.txt')}`)
+  })
+
+  it('preserves oldPath through round-trip for renamed files', async () => {
+    git(repoPath, 'mv README.md readme-backup.md')
+
+    const changes = await getWorkingDirectoryChangesDetailed(repo)
+    const renamed = changes.find(c => c.path === 'readme-backup.md')
+    expect(renamed).toBeTruthy()
+    expect(renamed!.oldPath).toBe('README.md')
+
+    // Round-trip
+    const wdfc = fileChangeSummaryToWorkingDirectoryFile(renamed!)
+    expect(wdfc.path).toBe('readme-backup.md')
+    expect(wdfc.status.kind).toBe(AppFileStatusKind.Renamed)
+    expect((wdfc.status as any).oldPath).toBe('README.md')
+
+    // Clean up: reverse the rename
+    git(repoPath, 'mv readme-backup.md README.md')
   })
 })
 
@@ -415,6 +525,89 @@ describe('getRemotesFromPath', () => {
     const nonRepoPath = mkdtempSync(join(tmpdir(), 'gcctest-nonrepo-'))
     const remotes = await getRemotesFromPath(nonRepoPath)
     expect(remotes).toEqual([])
+    execSync(`rm -rf ${nonRepoPath}`)
+  })
+})
+
+describe('getRepositories', () => {
+  it('discovers the root repo when scanning from repo path', async () => {
+    // Scan the fixture repo — should find it at the root
+    const repos = await getRepositories(repoPath)
+    expect(repos.length).toBeGreaterThanOrEqual(1)
+
+    const root = repos.find(r => r.path === repoPath)
+    expect(root).toBeTruthy()
+    // The fixture is created in a temp dir, so name will be the temp dir name
+    expect(root!.path).toBe(repoPath)
+  })
+
+  it('finds nested repos in a monorepo-style layout', async () => {
+    const monorepoRoot = mkdtempSync(join(tmpdir(), 'gcctest-monorepo-'))
+    execSync(`git init ${monorepoRoot}`, { stdio: 'pipe' })
+    execSync(`git -C ${monorepoRoot} commit --allow-empty -m 'init'`, { stdio: 'pipe' })
+
+    const pkgA = join(monorepoRoot, 'packages', 'pkg-a')
+    const pkgB = join(monorepoRoot, 'packages', 'pkg-b')
+    execSync(`mkdir -p ${pkgA} ${pkgB}`)
+    execSync(`git init ${pkgA}`, { stdio: 'pipe' })
+    execSync(`git -C ${pkgA} commit --allow-empty -m 'init pkg-a'`, { stdio: 'pipe' })
+    execSync(`git init ${pkgB}`, { stdio: 'pipe' })
+    execSync(`git -C ${pkgB} commit --allow-empty -m 'init pkg-b'`, { stdio: 'pipe' })
+
+    const repos = await getRepositories(monorepoRoot)
+    expect(repos.length).toBe(3)
+
+    const paths = repos.map(r => r.path).sort()
+    expect(paths).toContain(monorepoRoot)
+    expect(paths).toContain(pkgA)
+    expect(paths).toContain(pkgB)
+
+    execSync(`rm -rf ${monorepoRoot}`)
+  })
+
+  it('skips node_modules directories', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'gcctest-skips-'))
+    execSync(`git init ${root}`, { stdio: 'pipe' })
+    execSync(`git -C ${root} commit --allow-empty -m 'init'`, { stdio: 'pipe' })
+
+    const nm = join(root, 'node_modules', 'some-lib')
+    execSync(`mkdir -p ${nm}`)
+    execSync(`git init ${nm}`, { stdio: 'pipe' })
+    execSync(`git -C ${nm} commit --allow-empty -m 'dep'`, { stdio: 'pipe' })
+
+    const repos = await getRepositories(root)
+    expect(repos.length).toBe(1)
+    expect(repos[0].path).toBe(root)
+
+    execSync(`rm -rf ${root}`)
+  })
+
+  it('obeys the depth limit', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'gcctest-depth-'))
+    execSync(`git init ${root}`, { stdio: 'pipe' })
+    execSync(`git -C ${root} commit --allow-empty -m 'init'`, { stdio: 'pipe' })
+
+    const deep = join(root, 'a', 'b', 'c')
+    execSync(`mkdir -p ${deep}`)
+    execSync(`git init ${deep}`, { stdio: 'pipe' })
+    execSync(`git -C ${deep} commit --allow-empty -m 'deep'`, { stdio: 'pipe' })
+
+    // With depth 2, should not find the deep repo
+    const repos = await getRepositories(root, { depth: 2 })
+    expect(repos.length).toBe(1)
+    expect(repos[0].path).toBe(root)
+
+    // With depth -1 (unlimited), should find the deep repo
+    const reposDeep = await getRepositories(root, { depth: -1 })
+    expect(reposDeep.length).toBe(2)
+
+    execSync(`rm -rf ${root}`)
+  })
+
+  it('returns empty array for a non-repo path', async () => {
+    const nonRepoPath = mkdtempSync(join(tmpdir(), 'gcctest-nonrepo-'))
+    const repos = await getRepositories(nonRepoPath)
+    expect(repos).toEqual([])
     execSync(`rm -rf ${nonRepoPath}`)
   })
 })

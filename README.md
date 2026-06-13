@@ -213,6 +213,7 @@ try {
 | `config` | `getConfigValue`, `getGlobalConfigValue`, `getBooleanConfigValue` | Read git config |
 | `diff` | `getWorkingDirectoryDiff`, `getCommitDiff`, `getBranchMergeBaseDiff`, `getCommitRangeDiff`, `getBinaryPaths` | Diff rendering |
 | `diff-index` | `getIndexChanges` | Compare index with tree |
+| `discover` | `getRepositories` | Discover git repos in a directory tree (monorepo support) |
 | `fetch` | `fetch`, `fetchRefspec`, `fastForwardBranches` | Fetch from remotes |
 | `for-each-ref` | `getBranches`, `getBranchesDifferingFromUpstream` | List refs |
 | `format-patch` | `formatPatch` | Generate patch files |
@@ -238,7 +239,7 @@ try {
 | `squash` | `squash` | Interactive rebase squashing |
 | `stage` | `stageManualConflictResolution`, `stageResolvedConflictFiles` | Stage conflict resolutions |
 | `stash` | `getStashes`, `getStashesByPath`, `createStashEntry`, `popStashEntry`, `getStashedFiles`, `dropStashEntry` | Stash management |
-| `status` | `getStatus` | Repository status |
+| `status` | `getStatus`, `getWorkingDirectoryChanges`, `getWorkingDirectoryChangesDetailed`, `fileChangeSummaryToWorkingDirectoryFile` | Repository status + flat summaries + selection-aware variant with roundtrip |
 | `submodule` | `updateSubmodulesAfterOperation`, `listSubmodules`, `resetSubmodulePaths` | Submodule operations |
 | `tag` | `createTag`, `deleteTag`, `getTags`, `getAllTags` | Tag management |
 | `update-index` | `stageFiles` | Stage files |
@@ -263,6 +264,8 @@ try {
 | `WorkingDirectoryFileChange` | class | Uncommitted file change with diff selection |
 | `CommittedFileChange` | class | File change from a commit |
 | `WorkingDirectoryStatus` | class | Container for working directory changes |
+| `WorkingDirectoryChangeSummary` | type | `{ path: string; status: string; oldPath?: string }` — flattened working directory change |
+| `WorkingDirectoryFileChangeSummary` | type | Like `WorkingDirectoryChangeSummary` but also includes `selectionType` + `selection` for staging decisions |
 | `DiffSelection` / `DiffSelectionType` | class/enum | Partial file staging |
 | `ComputedAction` | enum | `Clean`, `Conflicts`, `Invalid`, `Loading` |
 | `ManualConflictResolution` | enum | `theirs` / `ours` |
@@ -294,10 +297,6 @@ Note: `git revert` does not produce progress output, so `RevertProgressParser` s
 ### 🟡 Git LFS Trampoline (`src/lib/trampoline/`)
 
 `withTrampolineEnv` is a **stub** that calls through without setting up the Git LFS trampoline environment. Git LFS operations may not work correctly as a result.
-
-### 🟢 Integration Tests
-
-Integration tests are available in `src/__tests__/integration.test.ts` and run against real git repositories in temp directories. Run `npm test` to execute them.
 
 ---
 

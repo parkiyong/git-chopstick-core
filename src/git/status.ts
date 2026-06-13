@@ -29,6 +29,10 @@ import { RebaseInternalState } from '../models/rebase.js'
 import { isCherryPickHeadFound } from './cherry-pick.js'
 import { git } from './index.js'
 
+// Re-export DiffSelectionType and DiffSelection so consumers can import from the barrel
+// without importing directly from models/diff
+export { DiffSelectionType, DiffSelection } from '../models/diff/index.js'
+
 /** The encapsulation of the result from 'git status' */
 export interface IStatusResult {
   /** The name of the current branch */
@@ -387,6 +391,224 @@ function parseStatusHeader(results: IStatusHeadersData, header: IStatusHeader) {
     branchAheadBehind,
     match,
   }
+}
+
+/**
+ * A flattened summary of a working directory change.
+ *
+ * Saves consumers from digging into the nested `WorkingDirectoryFileChange.status`
+ * union type to get the path, status string, and optional oldPath.
+ */
+export interface WorkingDirectoryChangeSummary {
+  readonly path: string
+  readonly status:
+    | 'added'
+    | 'modified'
+    | 'deleted'
+    | 'renamed'
+    | 'copied'
+    | 'conflicted'
+    | 'untracked'
+  readonly oldPath?: string
+}
+
+/**
+ * Get a flattened list of working directory changes for a repository.
+ *
+ * Wraps `getStatus` and maps each `WorkingDirectoryFileChange` to a simple
+ * `WorkingDirectoryChangeSummary` object, eliminating the need for consumers
+ * to dig into the `AppFileStatus` union type.
+ *
+ * Throws if the repository path is not a valid git repository.
+ */
+export async function getWorkingDirectoryChanges(
+  repository: Repository
+): Promise<ReadonlyArray<WorkingDirectoryChangeSummary>> {
+  const status = await getStatus(repository, true, true)
+
+  return status.workingDirectory.files.map(file => {
+    const summary: WorkingDirectoryChangeSummary = {
+      path: file.path,
+      status: statusKindToString(file.status.kind),
+    }
+
+    if (
+      (file.status.kind === AppFileStatusKind.Renamed ||
+        file.status.kind === AppFileStatusKind.Copied) &&
+      'oldPath' in file.status &&
+      file.status.oldPath !== undefined
+    ) {
+      return { ...summary, oldPath: file.status.oldPath }
+    }
+
+    return summary
+  })
+}
+
+function statusKindToString(
+  kind: AppFileStatusKind
+): WorkingDirectoryChangeSummary['status'] {
+  switch (kind) {
+    case AppFileStatusKind.New:
+      return 'added'
+    case AppFileStatusKind.Modified:
+      return 'modified'
+    case AppFileStatusKind.Deleted:
+      return 'deleted'
+    case AppFileStatusKind.Renamed:
+      return 'renamed'
+    case AppFileStatusKind.Copied:
+      return 'copied'
+    case AppFileStatusKind.Conflicted:
+      return 'conflicted'
+    case AppFileStatusKind.Untracked:
+      return 'untracked'
+  }
+}
+
+/**
+ * A flattened summary of a working directory change that also includes
+ * the `DiffSelection` for each file, enabling consumers to programmatically
+ * stage/unstage individual files or partial hunks.
+ *
+ * Use `fileChangeSummaryToWorkingDirectoryFile()` to convert back to
+ * `WorkingDirectoryFileChange[]` for use with `stageFiles()`.
+ */
+export interface WorkingDirectoryFileChangeSummary {
+  readonly path: string
+  readonly status:
+    | 'added'
+    | 'modified'
+    | 'deleted'
+    | 'renamed'
+    | 'copied'
+    | 'conflicted'
+    | 'untracked'
+  readonly oldPath?: string
+
+  /**
+   * Whether this file is selected for commit.
+   * - `All`: fully staged for commit
+   * - `None`: excluded from commit
+   * - `Partial`: only selected hunks/lines are staged
+   */
+  readonly selectionType: DiffSelectionType
+
+  /**
+   * The full `DiffSelection` object. Use the `withLineSelection()` or
+   * `withSelectAll()` / `withSelectNone()` methods to modify the selection,
+   * then pass through `fileChangeSummaryToWorkingDirectoryFile()` to
+   * create `WorkingDirectoryFileChange` instances for `stageFiles()`.
+   */
+  readonly selection: DiffSelection
+}
+
+/**
+ * Get a detailed list of working directory changes, including the
+ * `DiffSelection` for each file.
+ *
+ * Unlike `getWorkingDirectoryChanges()`, this variant includes the selection
+ * state so consumers can programmatically stage/unstage individual files
+ * or partial hunks.
+ *
+ * Round-trip with `fileChangeSummaryToWorkingDirectoryFile()` to convert
+ * back to `WorkingDirectoryFileChange[]` for use with `stageFiles()`.
+ *
+ * @see getWorkingDirectoryChanges for a lighter variant without selection info
+ * @see fileChangeSummaryToWorkingDirectoryFile to convert back to WorkingDirectoryFileChange
+ */
+export async function getWorkingDirectoryChangesDetailed(
+  repository: Repository
+): Promise<ReadonlyArray<WorkingDirectoryFileChangeSummary>> {
+  const status = await getStatus(repository, true, true)
+
+  return status.workingDirectory.files.map(file => {
+    const summary: WorkingDirectoryFileChangeSummary = {
+      path: file.path,
+      status: statusKindToString(file.status.kind),
+      selectionType: file.selection.getSelectionType(),
+      selection: file.selection,
+    }
+
+    if (
+      (file.status.kind === AppFileStatusKind.Renamed ||
+        file.status.kind === AppFileStatusKind.Copied) &&
+      'oldPath' in file.status &&
+      file.status.oldPath !== undefined
+    ) {
+      return { ...summary, oldPath: file.status.oldPath }
+    }
+
+    return summary
+  })
+}
+
+/**
+ * Convert a `WorkingDirectoryFileChangeSummary` back to a
+ * `WorkingDirectoryFileChange` for use with `stageFiles()`.
+ *
+ * This is a lossy conversion — the reconstructed `AppFileStatus` contains
+ * only the information available in the summary (path, status kind, oldPath).
+ * Submodule status and conflict marker counts are not preserved.
+ *
+ * @example
+ * const changes = await getWorkingDirectoryChangesDetailed(repo)
+ * // Exclude deleted files from the commit
+ * const toStage = changes
+ *   .filter(c => c.status !== 'deleted')
+ *   .map(fileChangeSummaryToWorkingDirectoryFile)
+ * await stageFiles(repo, toStage)
+ */
+export function fileChangeSummaryToWorkingDirectoryFile(
+  summary: WorkingDirectoryFileChangeSummary
+): WorkingDirectoryFileChange {
+  let appStatus: AppFileStatus
+
+  switch (summary.status) {
+    case 'added':
+      appStatus = { kind: AppFileStatusKind.New }
+      break
+    case 'modified':
+      appStatus = { kind: AppFileStatusKind.Modified }
+      break
+    case 'deleted':
+      appStatus = { kind: AppFileStatusKind.Deleted }
+      break
+    case 'renamed':
+      appStatus = {
+        kind: AppFileStatusKind.Renamed,
+        oldPath: summary.oldPath ?? summary.path,
+        renameIncludesModifications: false,
+      }
+      break
+    case 'copied':
+      appStatus = {
+        kind: AppFileStatusKind.Copied,
+        oldPath: summary.oldPath ?? summary.path,
+        renameIncludesModifications: false,
+      }
+      break
+    case 'conflicted':
+      appStatus = {
+        kind: AppFileStatusKind.Conflicted,
+        entry: {
+          kind: 'conflicted' as const,
+          action: UnmergedEntrySummary.BothModified,
+          us: GitStatusEntry.UpdatedButUnmerged,
+          them: GitStatusEntry.UpdatedButUnmerged,
+        },
+      }
+      break
+    case 'untracked':
+      appStatus = { kind: AppFileStatusKind.Untracked }
+      break
+  }
+
+  return new WorkingDirectoryFileChange(
+    summary.path,
+    appStatus,
+    summary.selection
+  )
 }
 
 async function getMergeConflictDetails(

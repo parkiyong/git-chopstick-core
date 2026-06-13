@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.1.13] — 2026-06-13
+
+### Added
+- **`getRepositories(rootPath, options?)`**: New `src/git/discover.ts` module for discovering git repos in a directory tree. Walks directories using `fs.opendir` with depth control (default 5), skips `node_modules`/`.git`/`.yarn`/etc., handles symlinks and worktree `.git` files. Returns `Repository[]`.
+- **`WorkingDirectoryFileChangeSummary`** type: Like `WorkingDirectoryChangeSummary` but includes `selectionType` and `selection` for staging decisions.
+- **`getWorkingDirectoryChangesDetailed(repository)`**: Selection-aware variant of `getWorkingDirectoryChanges` that returns `WorkingDirectoryFileChangeSummary[]` with `DiffSelection` objects.
+- **`fileChangeSummaryToWorkingDirectoryFile(summary)`**: Lossy roundtrip helper to convert a `WorkingDirectoryFileChangeSummary` back to `WorkingDirectoryFileChange` for use with `stageFiles()`.
+- **Integration tests**: 8 new tests covering `getWorkingDirectoryChangesDetailed` (3), `fileChangeSummaryToWorkingDirectoryFile` roundtrip (2), and `getRepositories` (5). Total: 56 tests.
+
+### Changed
+- **README Known Limitations**: Removed stale "Integration Tests" item from Known Limitations section (not a limitation). Cleaned up section.
+- **README API reference**: Added `discover` module, `getWorkingDirectoryChangesDetailed`, `fileChangeSummaryToWorkingDirectoryFile`, `WorkingDirectoryChangeSummary`, and `WorkingDirectoryFileChangeSummary` to tables.
+- **`src/git/index.ts`**: Added `discover.js` to barrel exports.
+- **`src/git/status.ts`**: Re-exports `DiffSelectionType` and `DiffSelection` at module level for convenient imports.
+
+---
+
 ## [0.1.11] — 2026-06-13
 
 ### Added
@@ -175,6 +192,7 @@
 
 ---
 
+[0.1.13]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.13
 [0.1.11]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.11
 [0.1.10]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.10
 [0.1.9]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.9
@@ -187,4 +205,4 @@
 [0.1.2]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.2
 [0.1.1]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.1
 [0.1.0]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.0
-[Unreleased]: https://github.com/parkiyong/git-chopstick-core/compare/v0.1.11...HEAD
+[Unreleased]: https://github.com/parkiyong/git-chopstick-core/compare/v0.1.13...HEAD
