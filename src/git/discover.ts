@@ -3,6 +3,8 @@ import { join, resolve } from 'path'
 import type { Dir } from 'fs'
 import { Repository } from '../models/repository.js'
 import { directoryExists } from '../lib/directory-exists.js'
+import { getRepositorySummary } from './rev-parse.js'
+import type { RepositorySummary } from './rev-parse.js'
 
 /**
  * Options for {@link getRepositories}.
@@ -70,13 +72,6 @@ export async function getRepositories(
     includeBare = false,
   } = options
 
-  if (includeBare) {
-    throw new Error(
-      'Bare repository detection is not yet implemented. ' +
-      'Set includeBare to false (default) or omit it.'
-    )
-  }
-
   if (!(await directoryExists(rootPath))) {
     return []
   }
@@ -93,6 +88,28 @@ export async function getRepositories(
     try {
       const s = await stat(gitPath)
       return s.isDirectory() || s.isFile()
+    } catch {
+      return false
+    }
+  }
+
+  /**
+   * Check if a directory looks like a bare git repository.
+   *
+   * A bare repo has the git internals (HEAD, objects, refs) directly in
+   * the directory rather than inside a `.git` subdirectory.
+   *
+   * This is a heuristic that checks for the essential bare-repo indicators
+   * without spawning a git process (which would be too slow for large trees).
+   */
+  async function isBareRepo(dirPath: string): Promise<boolean> {
+    try {
+      const [headStat, objectsStat, refsStat] = await Promise.all([
+        stat(join(dirPath, 'HEAD')),
+        stat(join(dirPath, 'objects')),
+        stat(join(dirPath, 'refs')),
+      ])
+      return headStat.isFile() && objectsStat.isDirectory() && refsStat.isDirectory()
     } catch {
       return false
     }
@@ -116,12 +133,17 @@ export async function getRepositories(
     }
     seen.add(resolved)
 
-    // Check if this directory is itself a repo
+    // Check if this directory is itself a regular repo (has .git directory/file)
     if (await hasGitDir(resolved)) {
       repos.push(new Repository(resolved, repos.length))
       // Continue recursing — the parent repo may contain nested repos
       // (e.g. monorepo workspaces where the root is a repo AND packages
       //  have their own .git directories)
+    } else if (includeBare && (await isBareRepo(resolved))) {
+      repos.push(new Repository(resolved, repos.length))
+      // Don't recurse into bare repos — the subdirectories are git internals
+      // (objects/, refs/, etc.) and not the working tree
+      return
     }
 
     // Recurse into subdirectories
@@ -165,4 +187,41 @@ export async function getRepositories(
 
   await walk(resolvedRoot, 0)
   return repos
+}
+
+/**
+ * Discover git repositories in a directory tree and return a summary
+ * for each one.
+ *
+ * Combines {@link getRepositories} and {@link getRepositorySummary} into
+ * a single call — useful for getting an instant overview of a monorepo
+ * workspace without iterating over results manually.
+ *
+ * Repositories that fail to produce a summary (bare repos, detached HEAD
+ * with no commits, etc.) are silently omitted from the result.
+ *
+ * @example
+ * const summaries = await getRepositoriesSummary('/path/to/monorepo')
+ * for (const s of summaries) {
+ *   console.log(`${s.path}: ${s.currentBranch ?? '(detached)'} @ ${s.head.slice(0, 7)}`)
+ * }
+ */
+export async function getRepositoriesSummary(
+  rootPath: string,
+  options: GetRepositoriesOptions = {}
+): Promise<ReadonlyArray<RepositorySummary>> {
+  const repos = await getRepositories(rootPath, options)
+
+  const results = await Promise.allSettled(
+    repos.map(r => getRepositorySummary(r.path))
+  )
+
+  const summaries: RepositorySummary[] = []
+  for (const result of results) {
+    if (result.status === 'fulfilled' && result.value !== null) {
+      summaries.push(result.value)
+    }
+  }
+
+  return summaries
 }

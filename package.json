@@ -1,6 +1,6 @@
 {
   "name": "git-chopstick-core",
-  "version": "0.1.13",
+  "version": "0.1.15",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

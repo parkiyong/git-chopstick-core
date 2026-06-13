@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.15] — 2026-06-13
+
+### Added
+- **`includeBare` option for `getRepositories`**: Bare repository detection is now implemented. Uses a heuristic check (`HEAD` + `objects/` + `refs/` via `stat`) to detect bare repos without spawning git processes. Bare repos are added to results but their internal directories (`objects/`, `refs/`, etc.) are not traversed.
+- **`getRepositoriesSummary(rootPath, options?)`**: Combines `getRepositories` + `getRepositorySummary` for an instant workspace overview. Silently omits bare repos and unborn HEADs from results.
+- **Integration tests**: 4 new tests covering `getRepositoriesSummary` (2) and `includeBare` (2). Total: 60 tests.
+
+---
+
 ## [0.1.13] — 2026-06-13
 
 ### Added
@@ -192,6 +201,7 @@
 
 ---
 
+[0.1.15]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.15
 [0.1.13]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.13
 [0.1.11]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.11
 [0.1.10]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.10
@@ -205,4 +215,4 @@
 [0.1.2]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.2
 [0.1.1]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.1
 [0.1.0]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.0
-[Unreleased]: https://github.com/parkiyong/git-chopstick-core/compare/v0.1.13...HEAD
+[Unreleased]: https://github.com/parkiyong/git-chopstick-core/compare/v0.1.15...HEAD

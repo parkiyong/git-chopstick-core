@@ -4,7 +4,7 @@ import { execSync } from 'child_process'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import {
-  Repository, getRepositories, getStatus, getWorkingDirectoryChanges, getWorkingDirectoryChangesDetailed, fileChangeSummaryToWorkingDirectoryFile, DiffSelectionType, getCommits, getBranches,
+  Repository, getRepositories, getRepositoriesSummary, getStatus, getWorkingDirectoryChanges, getWorkingDirectoryChangesDetailed, fileChangeSummaryToWorkingDirectoryFile, DiffSelectionType, getCommits, getBranches,
   createCommit, createBranch, deleteLocalBranch, renameBranch,
   getCurrentBranch, getRepositoryType, getRepositorySummary,
   getRemoteUrl, getRemotesFromPath, getAllTags,
@@ -609,6 +609,90 @@ describe('getRepositories', () => {
     const repos = await getRepositories(nonRepoPath)
     expect(repos).toEqual([])
     execSync(`rm -rf ${nonRepoPath}`)
+  })
+
+  it('detects bare repos when includeBare is true', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'gcctest-bare-'))
+    execSync(`git init ${root}`, { stdio: 'pipe' })
+    execSync(`git -C ${root} commit --allow-empty -m 'init'`, { stdio: 'pipe' })
+
+    // Create a bare repo inside the tree
+    const bare = join(root, 'shared.git')
+    execSync(`mkdir -p ${bare}`)
+    execSync(`git init --bare ${bare}`, { stdio: 'pipe' })
+
+    // Without includeBare, should not find the bare repo
+    const reposWithout = await getRepositories(root)
+    expect(reposWithout.length).toBe(1)
+    expect(reposWithout[0].path).toBe(root)
+
+    // With includeBare, should find both
+    const reposWith = await getRepositories(root, { includeBare: true })
+    expect(reposWith.length).toBe(2)
+
+    const bareFound = reposWith.find(r => r.path === bare)
+    expect(bareFound).toBeTruthy()
+
+    execSync(`rm -rf ${root}`)
+  })
+
+  it('does not recurse into bare repo internals', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'gcctest-bare-internals-'))
+    execSync(`git init ${root}`, { stdio: 'pipe' })
+    execSync(`git -C ${root} commit --allow-empty -m 'init'`, { stdio: 'pipe' })
+
+    const bare = join(root, 'project.git')
+    execSync(`mkdir -p ${bare}`)
+    execSync(`git init --bare ${bare}`, { stdio: 'pipe' })
+
+    const repos = await getRepositories(root, { includeBare: true })
+    // Should only be 2: the root repo and the bare repo. Subdirs of the bare
+    // repo like objects/, refs/ should NOT be discovered as separate repos.
+    expect(repos.length).toBe(2)
+
+    execSync(`rm -rf ${root}`)
+  })
+})
+
+describe('getRepositoriesSummary', () => {
+  it('returns summaries for all repos in a monorepo', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'gcctest-summaries-'))
+    execSync(`git init ${root}`, { stdio: 'pipe' })
+    execSync(`git -C ${root} commit --allow-empty -m 'init'`, { stdio: 'pipe' })
+
+    const pkg = join(root, 'packages', 'pkg-a')
+    execSync(`mkdir -p ${pkg}`)
+    execSync(`git init ${pkg}`, { stdio: 'pipe' })
+    execSync(`git -C ${pkg} commit --allow-empty -m 'init pkg-a'`, { stdio: 'pipe' })
+
+    const summaries = await getRepositoriesSummary(root)
+    expect(summaries.length).toBe(2)
+
+    for (const s of summaries) {
+      expect(s.path).toBeTruthy()
+      expect(s.head).toMatch(/^[a-f0-9]{40}$/)
+      expect(s.currentBranch).toBe('main')
+    }
+
+    execSync(`rm -rf ${root}`)
+  })
+
+  it('skips repos that fail to produce a summary (bare repos)', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'gcctest-bare-summary-'))
+    execSync(`git init ${root}`, { stdio: 'pipe' })
+    execSync(`git -C ${root} commit --allow-empty -m 'init'`, { stdio: 'pipe' })
+
+    // Create a bare repo inside the tree
+    const bare = join(root, 'bare-repo')
+    execSync(`mkdir -p ${bare}`)
+    execSync(`git init --bare ${bare}`, { stdio: 'pipe' })
+
+    const summaries = await getRepositoriesSummary(root)
+    // The bare repo should be silently skipped
+    expect(summaries.length).toBe(1)
+    expect(summaries[0].path).toBe(root)
+
+    execSync(`rm -rf ${root}`)
   })
 })
 
