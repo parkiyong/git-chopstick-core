@@ -1,8 +1,8 @@
-import { envForAuthentication } from './authentication'
-import { resolveGitProxy as resolveGitProxyFn } from '../lib/resolve-git-proxy'
-import { getHTMLURL } from '../lib/api'
-import { Repository } from '../models/repository'
-import { IRemote } from '../models/remote'
+import { envForAuthentication } from './authentication.js'
+import { resolveGitProxy as resolveGitProxyFn } from '../lib/resolve-git-proxy.js'
+import { getHTMLURL } from '../lib/api.js'
+import { Repository } from '../models/repository.js'
+import { IRemote } from '../models/remote.js'
 
 /**
  * For many remote operations it's well known what the primary remote

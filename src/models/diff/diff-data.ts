@@ -1,6 +1,6 @@
-import { DiffHunk } from './raw-diff'
-import { Image } from './image'
-import { SubmoduleStatus } from '../status'
+import { DiffHunk } from './raw-diff.js'
+import { Image } from './image.js'
+import { SubmoduleStatus } from '../status.js'
 
 export enum DiffType {
   Text,

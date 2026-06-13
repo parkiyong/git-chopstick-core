@@ -1,13 +1,13 @@
-import { git } from './core'
-import { GitError } from './exec'
-import { Repository } from '../models/repository'
+import { git } from './core.js'
+import { GitError } from './exec.js'
+import { Repository } from '../models/repository.js'
 import {
   Branch,
   BranchType,
   IBranchTip,
   ITrackingBranch,
-} from '../models/branch'
-import { createForEachRefParser } from './git-delimiter-parser'
+} from '../models/branch.js'
+import { createForEachRefParser } from './git-delimiter-parser.js'
 
 /** Get all the branches. */
 export async function getBranches(

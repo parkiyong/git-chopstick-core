@@ -1,31 +1,31 @@
-import { GitError } from './exec'
-import { Repository } from '../models/repository'
+import { GitError } from './exec.js'
+import { Repository } from '../models/repository.js'
 import {
   AppFileStatusKind,
   WorkingDirectoryFileChange,
-} from '../models/status'
+} from '../models/status.js'
 import {
   git,
   IGitExecutionOptions,
   IGitResult,
   IGitStringExecutionOptions,
-} from './core'
-import { getStatus } from './status'
-import { stageFiles } from './update-index'
-import { getCommitsInRange, revRange } from './rev-list'
-import { CommitOneLine } from '../models/commit'
-import { merge } from '../lib/merge'
+} from './core.js'
+import { getStatus } from './status.js'
+import { stageFiles } from './update-index.js'
+import { getCommitsInRange, revRange } from './rev-list.js'
+import { CommitOneLine } from '../models/commit.js'
+import { merge } from '../lib/merge.js'
 import { ChildProcess } from 'child_process'
-import { round } from '../lib/round'
+import { round } from '../lib/round.js'
 import byline from 'byline'
-import { ICherryPickSnapshot } from '../models/cherry-pick'
-import { ManualConflictResolution } from '../models/manual-conflict-resolution'
-import { stageManualConflictResolution } from './stage'
-import { getCommit } from '.'
-import { IMultiCommitOperationProgress } from '../models/progress'
+import { ICherryPickSnapshot } from '../models/cherry-pick.js'
+import { ManualConflictResolution } from '../models/manual-conflict-resolution.js'
+import { stageManualConflictResolution } from './stage.js'
+import { getCommit } from './index.js'
+import { IMultiCommitOperationProgress } from '../models/progress.js'
 import { join } from 'path'
 import { readFile } from 'fs/promises'
-import { pathExists } from '../lib/path-exists'
+import { pathExists } from '../lib/path-exists.js'
 
 /** The app-specific results from attempting to cherry pick commits*/
 export enum CherryPickResult {

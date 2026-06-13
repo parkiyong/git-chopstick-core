@@ -3,10 +3,10 @@
  *
  * Usage:
  *   bun examples/get-status.ts /path/to/some/repo
+ *   npx tsx examples/get-status.ts /path/to/some/repo
  */
 
-import { Repository } from '../src/models/repository'
-import { getStatus } from '../src/git/status'
+import { Repository, getStatus, GitError, GitErrorCodes } from '../src/index.js'
 
 async function main() {
   const repoPath = process.argv[2]
@@ -52,9 +52,11 @@ async function main() {
   for (const file of files) {
     const kind = file.status.kind
     const list = byKind.get(kind) ?? []
-    list.push(file.status.kind === 'Renamed' || file.status.kind === 'Copied'
-      ? `${file.path} (was: ${file.status.oldPath})`
-      : file.path)
+    list.push(
+      kind === 'Renamed' || kind === 'Copied'
+        ? `${file.path} (was: ${file.status.oldPath})`
+        : file.path
+    )
     byKind.set(kind, list)
   }
 
@@ -79,6 +81,13 @@ async function main() {
 }
 
 main().catch(err => {
-  console.error('Error:', err)
+  if (err instanceof GitError) {
+    console.error(`\n❌ Git error [${err.result.gitError ?? 'UNKNOWN'}]: ${err.message}`)
+    if (err.result.gitError === GitErrorCodes.NotAGitRepository) {
+      console.error('   The path is not a valid git repository.')
+    }
+  } else {
+    console.error('Error:', err)
+  }
   process.exit(1)
 })

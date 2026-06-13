@@ -1,21 +1,21 @@
-import { git, IGitStringExecutionOptions } from './core'
-import { Repository } from '../models/repository'
-import { Branch, BranchType } from '../models/branch'
-import { clampProgress, ICheckoutProgress } from '../models/progress'
+import { git, IGitStringExecutionOptions } from './core.js'
+import { Repository } from '../models/repository.js'
+import { Branch, BranchType } from '../models/branch.js'
+import { clampProgress, ICheckoutProgress } from '../models/progress.js'
 import {
   CheckoutProgressParser,
   executionOptionsWithProgress,
-} from '../lib/progress'
-import { AuthenticationErrors } from './authentication'
+} from '../lib/progress/index.js'
+import { AuthenticationErrors } from './authentication.js'
 import {
   envForRemoteOperation,
   getFallbackUrlForProxyResolve,
-} from './environment'
-import { WorkingDirectoryFileChange } from '../models/status'
-import { ManualConflictResolution } from '../models/manual-conflict-resolution'
-import { CommitOneLine, shortenSHA } from '../models/commit'
-import { IRemote } from '../models/remote'
-import { updateSubmodulesAfterOperation } from './submodule'
+} from './environment.js'
+import { WorkingDirectoryFileChange } from '../models/status.js'
+import { ManualConflictResolution } from '../models/manual-conflict-resolution.js'
+import { CommitOneLine, shortenSHA } from '../models/commit.js'
+import { IRemote } from '../models/remote.js'
+import { updateSubmodulesAfterOperation } from './submodule.js'
 
 export type ProgressCallback = (progress: ICheckoutProgress) => void
 

@@ -41,4 +41,4 @@ export class Commit {
   }
 }
 
-import { CommitIdentity } from './commit-identity'
+import { CommitIdentity } from './commit-identity.js'

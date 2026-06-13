@@ -1,9 +1,9 @@
 import { join } from 'path'
-import { git, HookCallbackOptions } from './core'
-import { GitError } from './exec'
-import { Repository } from '../models/repository'
-import { pathExists } from '../lib/path-exists'
-import { createMultiOperationTerminalOutputCallback } from './multi-operation-terminal-output'
+import { git, HookCallbackOptions } from './core.js'
+import { GitError } from './exec.js'
+import { Repository } from '../models/repository.js'
+import { pathExists } from '../lib/path-exists.js'
+import { createMultiOperationTerminalOutputCallback } from './multi-operation-terminal-output.js'
 
 export enum MergeResult {
   /** The merge completed successfully */

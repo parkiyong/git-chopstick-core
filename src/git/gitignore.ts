@@ -1,7 +1,7 @@
 import * as Path from 'path'
 import * as FS from 'fs'
-import { Repository } from '../models/repository'
-import { getConfigValue } from './config'
+import { Repository } from '../models/repository.js'
+import { getConfigValue } from './config.js'
 import { writeFile } from 'fs/promises'
 
 /**

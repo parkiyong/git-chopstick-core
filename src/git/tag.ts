@@ -1,7 +1,7 @@
-import { git } from './core'
-import { Repository } from '../models/repository'
-import { IRemote } from '../models/remote'
-import { envForRemoteOperation } from './environment'
+import { git } from './core.js'
+import { Repository } from '../models/repository.js'
+import { IRemote } from '../models/remote.js'
+import { envForRemoteOperation } from './environment.js'
 
 /**
  * Create a new tag on the given target commit.

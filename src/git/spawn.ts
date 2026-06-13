@@ -1,6 +1,6 @@
-import { spawnGit as spawn, IGitSpawnOptions } from './exec'
-import * as GitPerf from '../lib/git-perf'
-import { withTrampolineEnv } from '../lib/trampoline/trampoline-environment'
+import { spawnGit as spawn, IGitSpawnOptions } from './exec.js'
+import * as GitPerf from '../lib/git-perf.js'
+import { withTrampolineEnv } from '../lib/trampoline/trampoline-environment.js'
 
 type SpawnOptions = IGitSpawnOptions & {
   /**

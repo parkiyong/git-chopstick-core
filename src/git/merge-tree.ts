@@ -1,8 +1,8 @@
-import { Branch } from '../models/branch'
-import { ComputedAction } from '../models/computed-action'
-import { Repository } from '../models/repository'
-import { git, isGitError } from './core'
-import { GitError } from './exec'
+import { Branch } from '../models/branch.js'
+import { ComputedAction } from '../models/computed-action.js'
+import { Repository } from '../models/repository.js'
+import { git, isGitError } from './core.js'
+import { GitError } from './exec.js'
 
 type MergeTreeResult =
   | { kind: ComputedAction.Clean }

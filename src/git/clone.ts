@@ -1,9 +1,9 @@
-import { git, IGitStringExecutionOptions } from './core'
-import { ICloneProgress } from '../models/progress'
-import { CloneOptions } from '../models/clone-options'
-import { CloneProgressParser, executionOptionsWithProgress } from '../lib/progress'
-import { getDefaultBranch } from '../lib/helpers/default-branch'
-import { envForRemoteOperation } from './environment'
+import { git, IGitStringExecutionOptions } from './core.js'
+import { ICloneProgress } from '../models/progress.js'
+import { CloneOptions } from '../models/clone-options.js'
+import { CloneProgressParser, executionOptionsWithProgress } from '../lib/progress/index.js'
+import { getDefaultBranch } from '../lib/helpers/default-branch.js'
+import { envForRemoteOperation } from './environment.js'
 
 /**
  * Clones a repository from a given url into to the specified path.

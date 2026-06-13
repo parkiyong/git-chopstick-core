@@ -3,8 +3,8 @@ import {
   GitStatusEntry,
   SubmoduleStatus,
   UnmergedEntrySummary,
-} from '../models/status'
-import { splitBuffer } from './split-buffer'
+} from '../models/status.js'
+import { splitBuffer } from './split-buffer.js'
 
 type StatusItem = IStatusHeader | IStatusEntry
 

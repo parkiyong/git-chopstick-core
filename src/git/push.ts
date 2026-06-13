@@ -1,10 +1,10 @@
-import { git, HookCallbackOptions, IGitStringExecutionOptions } from './core'
-import { Repository } from '../models/repository'
-import { IPushProgress } from '../models/progress'
-import { PushProgressParser, executionOptionsWithProgress } from '../lib/progress'
-import { IRemote } from '../models/remote'
-import { envForRemoteOperation } from './environment'
-import { Branch } from '../models/branch'
+import { git, HookCallbackOptions, IGitStringExecutionOptions } from './core.js'
+import { Repository } from '../models/repository.js'
+import { IPushProgress } from '../models/progress.js'
+import { PushProgressParser, executionOptionsWithProgress } from '../lib/progress/index.js'
+import { IRemote } from '../models/remote.js'
+import { envForRemoteOperation } from './environment.js'
+import { Branch } from '../models/branch.js'
 
 export type PushOptions = {
   /**

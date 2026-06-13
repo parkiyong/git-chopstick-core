@@ -1,20 +1,20 @@
-import { GitError as DugiteError } from './exec'
-import { git, GitError } from './core'
-import { Repository } from '../models/repository'
+import { GitError as DugiteError } from './exec.js'
+import { git, GitError } from './core.js'
+import { Repository } from '../models/repository.js'
 import {
   IStashEntry,
   StashedChangesLoadStates,
   StashedFileChanges,
-} from '../models/stash-entry'
+} from '../models/stash-entry.js'
 import {
   WorkingDirectoryFileChange,
   CommittedFileChange,
-} from '../models/status'
-import { parseRawLogWithNumstat } from './log'
-import { stageFiles } from './update-index'
-import { Branch } from '../models/branch'
-import { createLogParser } from './git-delimiter-parser'
-import { coerceToString } from './coerce-to-string'
+} from '../models/status.js'
+import { parseRawLogWithNumstat } from './log.js'
+import { stageFiles } from './update-index.js'
+import { Branch } from '../models/branch.js'
+import { createLogParser } from './git-delimiter-parser.js'
+import { coerceToString } from './coerce-to-string.js'
 
 export const DesktopStashEntryMarker = '!!GitHub_Desktop'
 

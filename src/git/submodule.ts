@@ -1,15 +1,15 @@
-import { git, IGitStringExecutionOptions } from './core'
-import { Repository } from '../models/repository'
-import { SubmoduleEntry } from '../models/submodule'
-import { pathExists } from '../lib/path-exists'
-import { executionOptionsWithProgress, IGitOutput } from '../lib/progress/index'
+import { git, IGitStringExecutionOptions } from './core.js'
+import { Repository } from '../models/repository.js'
+import { SubmoduleEntry } from '../models/submodule.js'
+import { pathExists } from '../lib/path-exists.js'
+import { executionOptionsWithProgress, IGitOutput } from '../lib/progress/index.js'
 import {
   envForRemoteOperation,
   getFallbackUrlForProxyResolve,
-} from './environment'
-import { AuthenticationErrors } from './authentication'
-import { IRemote } from '../models/remote'
-import { Progress } from '../models/progress'
+} from './environment.js'
+import { AuthenticationErrors } from './authentication.js'
+import { IRemote } from '../models/remote.js'
+import { Progress } from '../models/progress.js'
 import { join, resolve } from 'path'
 import { readFile } from 'fs/promises'
 

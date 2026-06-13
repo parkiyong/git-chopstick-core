@@ -1,11 +1,11 @@
 import { appendFile, rm, writeFile } from 'fs/promises'
-import { getCommits, revRange } from '.'
-import { Commit } from '../models/commit'
-import { MultiCommitOperationKind } from '../models/multi-commit-operation'
-import { IMultiCommitOperationProgress } from '../models/progress'
-import { Repository } from '../models/repository'
-import { getTempFilePath } from '../lib/file-system'
-import { rebaseInteractive, RebaseResult } from './rebase'
+import { getCommits, revRange } from './index.js'
+import { Commit } from '../models/commit.js'
+import { MultiCommitOperationKind } from '../models/multi-commit-operation.js'
+import { IMultiCommitOperationProgress } from '../models/progress.js'
+import { Repository } from '../models/repository.js'
+import { getTempFilePath } from '../lib/file-system.js'
+import { rebaseInteractive, RebaseResult } from './rebase.js'
 
 /**
  * Squashes provided commits by calling interactive rebase.

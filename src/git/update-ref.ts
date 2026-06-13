@@ -1,5 +1,5 @@
-import { git } from './core'
-import { Repository } from '../models/repository'
+import { git } from './core.js'
+import { Repository } from '../models/repository.js'
 
 /**
  * Update the ref to a new value.

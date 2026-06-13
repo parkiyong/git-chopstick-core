@@ -1,4 +1,4 @@
-import { DiffSelection, DiffSelectionType } from './diff'
+import { DiffSelection, DiffSelectionType } from './diff/index.js'
 
 export enum GitStatusEntry {
   Modified = 'M',

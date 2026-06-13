@@ -1,4 +1,4 @@
-import { GitError as DugiteError } from './exec'
+import { GitError as DugiteError } from './exec.js'
 
 /** Get the environment for authenticating remote operations. */
 export function envForAuthentication(): Record<string, string | undefined> {
@@ -6,7 +6,8 @@ export function envForAuthentication(): Record<string, string | undefined> {
     // supported since Git 2.3, this is used to ensure we never interactively prompt
     // for credentials - even as a fallback
     GIT_TERMINAL_PROMPT: '0',
-    GIT_TRACE: localStorage.getItem('git-trace') || '0',
+    // localStorage is not available in Node.js; fall back to process.env
+    GIT_TRACE: process.env.GIT_TRACE ?? '0',
   }
 }
 

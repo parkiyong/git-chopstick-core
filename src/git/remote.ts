@@ -1,10 +1,10 @@
-import { git } from './core'
-import { GitError } from './exec'
+import { git } from './core.js'
+import { GitError } from './exec.js'
 
-import { Repository } from '../models/repository'
-import { IRemote } from '../models/remote'
-import { envForRemoteOperation } from './environment'
-import { getSymbolicRef } from './refs'
+import { Repository } from '../models/repository.js'
+import { IRemote } from '../models/remote.js'
+import { envForRemoteOperation } from './environment.js'
+import { getSymbolicRef } from './refs.js'
 import memoizeOne from 'memoize-one'
 
 /**

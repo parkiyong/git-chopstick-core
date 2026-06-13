@@ -1,5 +1,5 @@
-import { git } from './core'
-import { directoryExists } from '../lib/directory-exists'
+import { git } from './core.js'
+import { directoryExists } from '../lib/directory-exists.js'
 import { resolve } from 'path'
 
 export type RepositoryType =

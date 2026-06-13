@@ -1,4 +1,4 @@
-import { getFilesWithConflictMarkers } from './diff-check'
+import { getFilesWithConflictMarkers } from './diff-check.js'
 import {
   WorkingDirectoryStatus,
   WorkingDirectoryFileChange,
@@ -9,7 +9,7 @@ import {
   UnmergedEntry,
   ConflictedFileStatus,
   UnmergedEntrySummary,
-} from '../models/status'
+} from '../models/status.js'
 import {
   parsePorcelainStatus,
   mapStatus,
@@ -17,17 +17,17 @@ import {
   IStatusHeader,
   isStatusHeader,
   isStatusEntry,
-} from '../lib/status-parser'
-import { DiffSelectionType, DiffSelection } from '../models/diff'
-import { Repository } from '../models/repository'
-import { IAheadBehind } from '../models/branch'
-import { fatalError } from '../lib/fatal-error'
-import { isMergeHeadSet, isSquashMsgSet } from './merge'
-import { getBinaryPaths } from './diff'
-import { getRebaseInternalState } from './rebase'
-import { RebaseInternalState } from '../models/rebase'
-import { isCherryPickHeadFound } from './cherry-pick'
-import { git } from '.'
+} from '../lib/status-parser.js'
+import { DiffSelectionType, DiffSelection } from '../models/diff/index.js'
+import { Repository } from '../models/repository.js'
+import { IAheadBehind } from '../models/branch.js'
+import { fatalError } from '../lib/fatal-error.js'
+import { isMergeHeadSet, isSquashMsgSet } from './merge.js'
+import { getBinaryPaths } from './diff.js'
+import { getRebaseInternalState } from './rebase.js'
+import { RebaseInternalState } from '../models/rebase.js'
+import { isCherryPickHeadFound } from './cherry-pick.js'
+import { git } from './index.js'
 
 /** The encapsulation of the result from 'git status' */
 export interface IStatusResult {

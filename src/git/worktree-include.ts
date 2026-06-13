@@ -2,9 +2,9 @@ import * as Fs from 'fs'
 import * as Path from 'path'
 import { readFile, copyFile, mkdir } from 'fs/promises'
 import ignore from 'ignore'
-import type { Repository } from '../models/repository'
-import { git } from './core'
-import { addWorktree, getMainWorktreePath } from './worktree'
+import type { Repository } from '../models/repository.js'
+import { git } from './core.js'
+import { addWorktree, getMainWorktreePath } from './worktree.js'
 
 const WorktreeIncludeFile = '.worktreeinclude'
 

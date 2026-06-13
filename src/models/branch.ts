@@ -75,4 +75,4 @@ export class Branch {
   }
 }
 
-import { Commit } from './commit'
+import { Commit } from './commit.js'

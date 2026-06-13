@@ -1,4 +1,4 @@
-import { splitBuffer } from '../lib/split-buffer'
+import { splitBuffer } from '../lib/split-buffer.js'
 
 /**
  * Create a new parser suitable for parsing --format output from commands such

@@ -1,4 +1,4 @@
-import { exec as git } from './exec'
+import { exec as git } from './exec.js'
 
 export const parseCredential = (value: string) => {
   const cred = new Map<string, string>()

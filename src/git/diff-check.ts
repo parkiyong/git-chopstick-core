@@ -1,4 +1,4 @@
-import { git } from './core'
+import { git } from './core.js'
 
 /**
  * Returns a list of files with conflict markers present

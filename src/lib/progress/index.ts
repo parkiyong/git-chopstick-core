@@ -1,4 +1,4 @@
-export { executionOptionsWithProgress } from './from-process'
+export { executionOptionsWithProgress } from './from-process.js'
 
 export interface IGitOutput {
   kind: string

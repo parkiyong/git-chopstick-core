@@ -1,4 +1,4 @@
-import { CommittedFileChange } from './status'
+import { CommittedFileChange } from './status.js'
 
 export interface IStashEntry {
   readonly name: string

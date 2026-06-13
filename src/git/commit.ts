@@ -1,10 +1,10 @@
-import { git, HookCallbackOptions, parseCommitSHA } from './core'
-import { stageFiles } from './update-index'
-import { Repository } from '../models/repository'
-import { WorkingDirectoryFileChange } from '../models/status'
-import { unstageAll } from './reset'
-import { ManualConflictResolution } from '../models/manual-conflict-resolution'
-import { stageManualConflictResolution } from './stage'
+import { git, HookCallbackOptions, parseCommitSHA } from './core.js'
+import { stageFiles } from './update-index.js'
+import { Repository } from '../models/repository.js'
+import { WorkingDirectoryFileChange } from '../models/status.js'
+import { unstageAll } from './reset.js'
+import { ManualConflictResolution } from '../models/manual-conflict-resolution.js'
+import { stageManualConflictResolution } from './stage.js'
 
 /**
  * @param repository repository to execute merge in

@@ -1,15 +1,15 @@
 import * as Path from 'path'
 
-import { getBlobContents } from './show'
+import { getBlobContents } from './show.js'
 
-import { Repository } from '../models/repository'
+import { Repository } from '../models/repository.js'
 import {
   WorkingDirectoryFileChange,
   FileChange,
   AppFileStatusKind,
   SubmoduleStatus,
   CommittedFileChange,
-} from '../models/status'
+} from '../models/status.js'
 import {
   DiffType,
   IRawDiff,
@@ -19,23 +19,23 @@ import {
   LineEndingsChange,
   parseLineEndingText,
   ILargeTextDiff,
-} from '../models/diff'
+} from '../models/diff/index.js'
 
-import { DiffParser } from '../lib/diff-parser'
-import { getOldPathOrDefault } from '../lib/get-old-path'
+import { DiffParser } from '../lib/diff-parser.js'
+import { getOldPathOrDefault } from '../lib/get-old-path.js'
 import { readFile } from 'fs/promises'
-import { forceUnwrap } from '../lib/fatal-error'
-import { git } from './core'
-import { NullTreeSHA } from './diff-index'
-import { GitError } from './exec'
-import { IChangesetData, parseRawLogWithNumstat } from './log'
-import { getConfigValue } from './config'
-import { getMergeBase } from './merge'
-import { IStatusEntry } from '../lib/status-parser'
-import { createLogParser } from './git-delimiter-parser'
-import { enableImagePreviewsForDDSFiles } from '../lib/feature-flag'
-import { unstageAll } from './reset'
-import { stageFiles } from './update-index'
+import { forceUnwrap } from '../lib/fatal-error.js'
+import { git } from './core.js'
+import { NullTreeSHA } from './diff-index.js'
+import { GitError } from './exec.js'
+import { IChangesetData, parseRawLogWithNumstat } from './log.js'
+import { getConfigValue } from './config.js'
+import { getMergeBase } from './merge.js'
+import { IStatusEntry } from '../lib/status-parser.js'
+import { createLogParser } from './git-delimiter-parser.js'
+import { enableImagePreviewsForDDSFiles } from '../lib/feature-flag.js'
+import { unstageAll } from './reset.js'
+import { stageFiles } from './update-index.js'
 import { isAbsolute } from 'path'
 
 /**

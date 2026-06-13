@@ -1,8 +1,8 @@
-import { git, isMaxBufferExceededError } from './core'
+import { git, isMaxBufferExceededError } from './core.js'
 
-import { Repository } from '../models/repository'
-import { GitError } from './exec'
-import { coerceToBuffer } from './coerce-to-buffer'
+import { Repository } from '../models/repository.js'
+import { GitError } from './exec.js'
+import { coerceToBuffer } from './coerce-to-buffer.js'
 
 /**
  * Retrieve the binary contents of a blob from the repository at a given

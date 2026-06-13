@@ -4,17 +4,17 @@ import {
   parseError,
   parseBadConfigValueErrorInfo,
   ExecError,
-} from './exec'
+} from './exec.js'
 
-import { assertNever } from '../lib/fatal-error'
-import * as GitPerf from '../lib/git-perf'
+import { assertNever } from '../lib/fatal-error.js'
+import * as GitPerf from '../lib/git-perf.js'
 import * as Path from 'path'
-import { isErrnoException } from '../lib/errno-exception'
-import { withTrampolineEnv } from '../lib/trampoline/trampoline-environment'
+import { isErrnoException } from '../lib/errno-exception.js'
+import { withTrampolineEnv } from '../lib/trampoline/trampoline-environment.js'
 import { kStringMaxLength } from 'buffer'
-import { withHooksEnv } from '../lib/hooks/with-hooks-env'
-import { coerceToString } from './coerce-to-string'
-import { pushTerminalChunk } from './push-terminal-chunk'
+import { withHooksEnv } from '../lib/hooks/with-hooks-env.js'
+import { coerceToString } from './coerce-to-string.js'
+import { pushTerminalChunk } from './push-terminal-chunk.js'
 
 export const isMaxBufferExceededError = (
   error: unknown

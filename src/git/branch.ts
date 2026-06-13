@@ -1,13 +1,13 @@
-import { git, isGitError } from './core'
-import { Repository } from '../models/repository'
-import { Branch } from '../models/branch'
-import { formatAsLocalRef } from './refs'
-import { deleteRef } from './update-ref'
-import { GitError as DugiteError } from './exec'
-import { envForRemoteOperation } from './environment'
-import { createForEachRefParser } from './git-delimiter-parser'
-import { IRemote } from '../models/remote'
-import { coerceToString } from './coerce-to-string'
+import { git, isGitError } from './core.js'
+import { Repository } from '../models/repository.js'
+import { Branch } from '../models/branch.js'
+import { formatAsLocalRef } from './refs.js'
+import { deleteRef } from './update-ref.js'
+import { GitError as DugiteError } from './exec.js'
+import { envForRemoteOperation } from './environment.js'
+import { createForEachRefParser } from './git-delimiter-parser.js'
+import { IRemote } from '../models/remote.js'
+import { coerceToString } from './coerce-to-string.js'
 
 /**
  * Create a new branch from the given start point.

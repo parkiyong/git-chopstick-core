@@ -1,9 +1,9 @@
-import { git } from './core'
-import { Repository } from '../models/repository'
+import { git } from './core.js'
+import { Repository } from '../models/repository.js'
 import * as Path from 'path'
 import * as Fs from 'fs'
-import type { WorktreeEntry, WorktreeType } from '../models/worktree'
-import { normalizePath } from '../lib/helpers/path'
+import type { WorktreeEntry, WorktreeType } from '../models/worktree.js'
+import { normalizePath } from '../lib/helpers/path.js'
 
 /**
  * Get the set of canonical branch refs (e.g. `refs/heads/feature`)

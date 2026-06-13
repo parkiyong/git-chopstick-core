@@ -5,8 +5,8 @@ import {
   DiffLine,
   DiffLineType,
   DiffHunkExpansionType,
-} from '../models/diff'
-import { assertNever } from './fatal-error'
+} from '../models/diff/index.js'
+import { assertNever } from './fatal-error.js'
 
 const diffHeaderRe = /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/
 

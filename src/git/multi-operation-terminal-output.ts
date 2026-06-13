@@ -1,10 +1,10 @@
-import noop from '../lib/noop'
+import noop from '../lib/noop.js'
 import {
   TerminalOutput,
   TerminalOutputCallback,
   TerminalOutputListener,
-} from './core'
-import { pushTerminalChunk } from './push-terminal-chunk'
+} from './core.js'
+import { pushTerminalChunk } from './push-terminal-chunk.js'
 
 /**
  * Creates a callback that aggregates terminal output from multiple Git

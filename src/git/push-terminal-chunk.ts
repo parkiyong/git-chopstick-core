@@ -1,4 +1,4 @@
-import { coerceToString } from './coerce-to-string'
+import { coerceToString } from './coerce-to-string.js'
 
 /**
  * Appends a chunk of terminal output to a buffer while maintaining a maximum capacity.

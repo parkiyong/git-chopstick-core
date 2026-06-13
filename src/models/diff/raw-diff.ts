@@ -1,4 +1,4 @@
-import { DiffLine } from './diff-line'
+import { DiffLine } from './diff-line.js'
 
 export enum DiffHunkExpansionType {
   None = 'None',

@@ -1,4 +1,4 @@
-import { IRemote } from '../../models/remote'
+import { IRemote } from '../../models/remote.js'
 
 export async function envForRemoteOperation(
   _url: string | null

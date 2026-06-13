@@ -1,16 +1,16 @@
-import { git, IGitStringExecutionOptions } from './core'
+import { git, IGitStringExecutionOptions } from './core.js'
 
-import { Repository } from '../models/repository'
-import { Commit } from '../models/commit'
-import { IRevertProgress } from '../models/progress'
+import { Repository } from '../models/repository.js'
+import { Commit } from '../models/commit.js'
+import { IRevertProgress } from '../models/progress.js'
 
-import { executionOptionsWithProgress } from '../lib/progress/from-process'
-import { RevertProgressParser } from '../lib/progress/revert'
+import { executionOptionsWithProgress } from '../lib/progress/from-process.js'
+import { RevertProgressParser } from '../lib/progress/revert.js'
 import {
   envForRemoteOperation,
   getFallbackUrlForProxyResolve,
-} from './environment'
-import { IRemote } from '../models/remote'
+} from './environment.js'
+import { IRemote } from '../models/remote.js'
 
 /**
  * Creates a new commit that reverts the changes of a previous commit

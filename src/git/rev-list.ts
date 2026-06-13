@@ -1,8 +1,8 @@
-import { GitError } from './exec'
-import { git } from './core'
-import { Repository } from '../models/repository'
-import { Branch, BranchType, IAheadBehind } from '../models/branch'
-import { CommitOneLine } from '../models/commit'
+import { GitError } from './exec.js'
+import { git } from './core.js'
+import { Repository } from '../models/repository.js'
+import { Branch, BranchType, IAheadBehind } from '../models/branch.js'
+import { CommitOneLine } from '../models/commit.js'
 
 /**
  * Convert two refs into the Git range syntax representing the set of commits

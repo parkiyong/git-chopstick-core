@@ -1,6 +1,6 @@
-import { DiffSelection } from '../models/diff'
-import { WorkingDirectoryFileChange } from '../models/status'
-import { Repository } from '../models/repository'
+import { DiffSelection } from '../models/diff/index.js'
+import { WorkingDirectoryFileChange } from '../models/status.js'
+import { Repository } from '../models/repository.js'
 
 export async function formatPatch(
   _repository: Repository,

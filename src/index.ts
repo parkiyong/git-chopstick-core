@@ -1,23 +1,11 @@
-// ── Runtime: Core git operations ──
-export { Repository } from './models/repository.js'
-export { getStatus } from './git/status.js'
-export { getCommits, getChangedFiles } from './git/log.js'
-export { getBranches } from './git/for-each-ref.js'
-export { getRemotes } from './git/remote.js'
+// ── All git operations ──
+export * from './git/index.js'
 
-// ── Models (classes used both as values and types) ──
-export { Commit } from './models/commit.js'
-export { CommitIdentity } from './models/commit-identity.js'
-export { Branch, BranchType } from './models/branch.js'
-export {
-  CommittedFileChange,
-  WorkingDirectoryFileChange,
-  WorkingDirectoryStatus,
-  AppFileStatusKind,
-} from './models/status.js'
-export { DiffSelection, DiffSelectionType } from './models/diff/diff-selection.js'
+// ── Git error codes enum (renamed to avoid conflict with GitError class from core.js) ──
+export { GitError as GitErrorCodes, type IGitSpawnOptions } from './git/exec.js'
 
-// ── Exclusively types ──
-export type { IStatusResult } from './git/status.js'
-export type { IChangesetData } from './git/log.js'
-export type { IRemote } from './models/remote.js'
+// ── All domain models ──
+export * from './models/index.js'
+
+// ── Explicit re-exports to resolve ambiguities between git and models ──
+export type { ITrailer } from './models/commit.js'

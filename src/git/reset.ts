@@ -1,6 +1,6 @@
-import { git } from './core'
-import { Repository } from '../models/repository'
-import { assertNever } from '../lib/fatal-error'
+import { git } from './core.js'
+import { Repository } from '../models/repository.js'
+import { assertNever } from '../lib/fatal-error.js'
 
 /** The reset modes which are supported. */
 export const enum GitResetMode {

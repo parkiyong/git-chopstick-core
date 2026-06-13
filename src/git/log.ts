@@ -1,4 +1,4 @@
-import { git } from './core'
+import { git } from './core.js'
 import {
   CommittedFileChange,
   AppFileStatusKind,
@@ -7,13 +7,13 @@ import {
   UntrackedFileStatus,
   AppFileStatus,
   SubmoduleStatus,
-} from '../models/status'
-import { Repository } from '../models/repository'
-import { Commit } from '../models/commit'
-import { CommitIdentity } from '../models/commit-identity'
-import { parseRawUnfoldedTrailers } from './interpret-trailers'
-import { createLogParser } from './git-delimiter-parser'
-import { forceUnwrap } from '../lib/fatal-error'
+} from '../models/status.js'
+import { Repository } from '../models/repository.js'
+import { Commit } from '../models/commit.js'
+import { CommitIdentity } from '../models/commit-identity.js'
+import { parseRawUnfoldedTrailers } from './interpret-trailers.js'
+import { createLogParser } from './git-delimiter-parser.js'
+import { forceUnwrap } from '../lib/fatal-error.js'
 import assert from 'assert'
 
 // File mode 160000 is used by git specifically for submodules:

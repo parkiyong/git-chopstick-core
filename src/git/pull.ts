@@ -5,13 +5,13 @@ import {
   IGitStringExecutionOptions,
   TerminalOutput,
   TerminalOutputCallback,
-} from './core'
-import { Repository } from '../models/repository'
-import { IPullProgress } from '../models/progress'
-import { PullProgressParser, executionOptionsWithProgress } from '../lib/progress'
-import { IRemote } from '../models/remote'
-import { envForRemoteOperation } from './environment'
-import { getConfigValue } from './config'
+} from './core.js'
+import { Repository } from '../models/repository.js'
+import { IPullProgress } from '../models/progress.js'
+import { PullProgressParser, executionOptionsWithProgress } from '../lib/progress/index.js'
+import { IRemote } from '../models/remote.js'
+import { envForRemoteOperation } from './environment.js'
+import { getConfigValue } from './config.js'
 
 /**
  * Pull from the specified remote.

@@ -1,14 +1,14 @@
-import { GitError as DugiteError } from './exec'
-import { git } from './core'
+import { GitError as DugiteError } from './exec.js'
+import { git } from './core.js'
 import {
   WorkingDirectoryFileChange,
   AppFileStatusKind,
-} from '../models/status'
-import { DiffType, ITextDiff, DiffSelection } from '../models/diff'
-import { Repository } from '../models/repository'
-import { getWorkingDirectoryDiff } from './diff'
-import { formatPatch, formatPatchToDiscardChanges } from '../lib/patch-formatter'
-import { assertNever } from '../lib/fatal-error'
+} from '../models/status.js'
+import { DiffType, ITextDiff, DiffSelection } from '../models/diff/index.js'
+import { Repository } from '../models/repository.js'
+import { getWorkingDirectoryDiff } from './diff.js'
+import { formatPatch, formatPatchToDiscardChanges } from '../lib/patch-formatter.js'
+import { assertNever } from '../lib/fatal-error.js'
 
 export async function applyPatchToIndex(
   repository: Repository,

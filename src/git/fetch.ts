@@ -1,10 +1,10 @@
-import { git, IGitStringExecutionOptions } from './core'
-import { Repository } from '../models/repository'
-import { IFetchProgress } from '../models/progress'
-import { FetchProgressParser, executionOptionsWithProgress } from '../lib/progress'
-import { IRemote } from '../models/remote'
-import { ITrackingBranch } from '../models/branch'
-import { envForRemoteOperation } from './environment'
+import { git, IGitStringExecutionOptions } from './core.js'
+import { Repository } from '../models/repository.js'
+import { IFetchProgress } from '../models/progress.js'
+import { FetchProgressParser, executionOptionsWithProgress } from '../lib/progress/index.js'
+import { IRemote } from '../models/remote.js'
+import { ITrackingBranch } from '../models/branch.js'
+import { envForRemoteOperation } from './environment.js'
 
 async function getFetchArgs(
   remote: string,

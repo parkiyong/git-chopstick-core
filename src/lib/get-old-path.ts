@@ -1,4 +1,4 @@
-import { FileChange, AppFileStatusKind } from '../models/status'
+import { FileChange, AppFileStatusKind } from '../models/status.js'
 
 export function getOldPathOrDefault(file: FileChange) {
   if (

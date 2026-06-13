@@ -1,19 +1,19 @@
 import { ChildProcess } from 'child_process'
-import { GitError } from './exec'
+import { GitError } from './exec.js'
 import byline from 'byline'
 
-import { Repository } from '../models/repository'
-import { RebaseInternalState, RebaseProgressOptions } from '../models/rebase'
-import { IMultiCommitOperationProgress } from '../models/progress'
+import { Repository } from '../models/repository.js'
+import { RebaseInternalState, RebaseProgressOptions } from '../models/rebase.js'
+import { IMultiCommitOperationProgress } from '../models/progress.js'
 import {
   WorkingDirectoryFileChange,
   AppFileStatusKind,
-} from '../models/status'
-import { ManualConflictResolution } from '../models/manual-conflict-resolution'
-import { Commit, CommitOneLine } from '../models/commit'
+} from '../models/status.js'
+import { ManualConflictResolution } from '../models/manual-conflict-resolution.js'
+import { Commit, CommitOneLine } from '../models/commit.js'
 
-import { merge } from '../lib/merge'
-import { formatRebaseValue } from '../lib/rebase'
+import { merge } from '../lib/merge.js'
+import { formatRebaseValue } from '../lib/rebase.js'
 
 import {
   git,
@@ -22,15 +22,15 @@ import {
   IGitStringExecutionOptions,
   IGitStringResult,
   HookCallbackOptions,
-} from './core'
-import { stageManualConflictResolution } from './stage'
-import { stageFiles } from './update-index'
-import { getStatus } from './status'
-import { getCommitsBetweenCommits } from './rev-list'
-import { Branch } from '../models/branch'
+} from './core.js'
+import { stageManualConflictResolution } from './stage.js'
+import { stageFiles } from './update-index.js'
+import { getStatus } from './status.js'
+import { getCommitsBetweenCommits } from './rev-list.js'
+import { Branch } from '../models/branch.js'
 import { join } from 'path'
 import { readFile } from 'fs/promises'
-import { pathExists } from '../lib/path-exists'
+import { pathExists } from '../lib/path-exists.js'
 
 /** The app-specific results from attempting to rebase a repository */
 export enum RebaseResult {

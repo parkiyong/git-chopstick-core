@@ -1,5 +1,5 @@
-import { IMultiCommitOperationProgress } from './progress'
-import { CommitOneLine } from './commit'
+import { IMultiCommitOperationProgress } from './progress.js'
+import { CommitOneLine } from './commit.js'
 
 export interface ICherryPickSnapshot {
   readonly sha: string
