@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.6] — 2026-06-13
+
+### Fixed
+- **CHANGELOG.md included in package**: Added `CHANGELOG.md` to the `files` array in `package.json` so consumers can read release notes from the installed package.
+
+---
+
 ## [0.1.5] — 2026-06-13
 
 ### Added
@@ -113,6 +120,7 @@
 [0.1.2]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.2
 [0.1.1]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.1
 [0.1.0]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.0
+[0.1.6]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.6
 [0.1.5]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.5
 [0.1.4]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.4
 [0.1.3]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.3
