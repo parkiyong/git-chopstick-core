@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.10] — 2026-06-13
+
+### Added
+- **`getRepositorySummary(path)`**: New helper combining `getRepositoryType` + `git rev-parse HEAD` + `getCurrentBranch` into one call. Returns `{ path, head, currentBranch? }` or `null` for bare/missing repos.
+- **`getRemoteUrl(path, name)`**: Path-based helper using `git config --get remote.<name>.url`. `getRemoteURL(repository, name)` now delegates to it.
+- **`spawnGit` progress example**: `examples/spawn-git-progress.ts` demonstrating how to wire `spawnGit` to `CheckoutProgressParser`, `FetchProgressParser`, `PushProgressParser`, `PullProgressParser`, and `CloneProgressParser`.
+- **Integration tests**: 18 new tests covering `getRepositorySummary` (5), `getRemoteUrl` (3), `getRemotesFromPath` (2), `addRemote`/`removeRemote`/`setRemoteURL` (4), `merge` (2), `rebase` (1), and `stash` (1). Total: 31 tests.
+
+### Changed
+- **README**: Updated API reference with `getRepositorySummary` and `getRemoteUrl`/`getRemoteURL` exports.
+
+---
+
 ## [0.1.9] — 2026-06-13
 
 ### Added
@@ -142,6 +155,7 @@
 
 ---
 
+[0.1.10]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.10
 [0.1.9]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.9
 [0.1.8]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.8
 [0.1.7]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.7
@@ -152,4 +166,4 @@
 [0.1.2]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.2
 [0.1.1]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.1
 [0.1.0]: https://github.com/parkiyong/git-chopstick-core/releases/tag/v0.1.0
-[Unreleased]: https://github.com/parkiyong/git-chopstick-core/compare/v0.1.9...HEAD
+[Unreleased]: https://github.com/parkiyong/git-chopstick-core/compare/v0.1.10...HEAD

@@ -113,3 +113,49 @@ export async function getCurrentBranch(
 
   return result.stdout.trim()
 }
+
+/**
+ * Summary of a repository opened at a path.
+ */
+export interface RepositorySummary {
+  /** The resolved repository path. */
+  path: string
+  /** The full SHA of HEAD. */
+  head: string
+  /** The current branch name, or undefined if HEAD is detached. */
+  currentBranch?: string
+}
+
+/**
+ * Get a summary of a repository at the given path in a single call.
+ *
+ * This replaces the common pattern of calling `getRepositoryType` +
+ * `git rev-parse HEAD` + `getCurrentBranch` separately.
+ *
+ * Returns `null` for missing, bare, or unsafe repositories.
+ */
+export async function getRepositorySummary(
+  path: string
+): Promise<RepositorySummary | null> {
+  const repoType = await getRepositoryType(path)
+
+  if (repoType.kind !== 'regular') {
+    return null
+  }
+
+  const headResult = await git(['rev-parse', 'HEAD'], path, 'getRepositorySummary', {
+    successExitCodes: new Set([0, 128]),
+  })
+
+  if (headResult.exitCode !== 0) {
+    return null
+  }
+
+  const currentBranch = await getCurrentBranch(path)
+
+  return {
+    path: repoType.topLevelWorkingDirectory,
+    head: headResult.stdout.trim(),
+    currentBranch,
+  }
+}

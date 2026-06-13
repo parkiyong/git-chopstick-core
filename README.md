@@ -228,12 +228,12 @@ try {
 | `rebase` | `rebase`, `continueRebase`, `abortRebase`, `rebaseInteractive`, `getRebaseInternalState`, `getRebaseSnapshot` | Rebase operations |
 | `reflog` | `getRecentBranches`, `getBranchCheckouts` | Reflog inspection |
 | `refs` | `formatAsLocalRef`, `getSymbolicRef` | Ref manipulation |
-| `remote` | `getRemotes`, `addRemote`, `removeRemote` | Remote management |
+| `remote` | `getRemotes`, `addRemote`, `removeRemote`, `getRemoteURL`, `getRemoteUrl`, `getRemotesFromPath`, `setRemoteURL` | Remote management |
 | `reorder` | `reorder` | Interactive rebase reordering |
 | `reset` | `reset`, `resetPaths`, `unstageAll` | Reset operations |
 | `revert` | `revertCommit` | Revert a commit |
 | `rev-list` | `getAheadBehind`, `getBranchAheadBehind`, `revRange`, `revSymmetricDifference` | Commit range queries |
-| `rev-parse` | `getRepositoryType`, `getCurrentBranch`, `getUpstreamRefForRef`, `getCurrentUpstreamRef` | Rev parsing / branch detection |
+| `rev-parse` | `getRepositoryType`, `getCurrentBranch`, `getRepositorySummary`, `getUpstreamRefForRef`, `getCurrentUpstreamRef` | Rev parsing / branch detection |
 | `rm` | `removeConflictedFile` | Remove files |
 | `squash` | `squash` | Interactive rebase squashing |
 | `stage` | `stageManualConflictResolution`, `stageResolvedConflictFiles` | Stage conflict resolutions |
@@ -341,6 +341,7 @@ npm pack --dry-run
 npx tsx examples/get-status.ts /path/to/repo
 npx tsx examples/branch-operations.ts /path/to/repo
 npx tsx examples/create-commit.ts /path/to/repo
+npx tsx examples/spawn-git-progress.ts /path/to/repo
 ```
 
 ## Status

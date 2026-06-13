@@ -6,7 +6,12 @@ import { join } from 'path'
 import {
   Repository, getStatus, getCommits, getBranches,
   createCommit, createBranch, deleteLocalBranch, renameBranch,
-  getCurrentBranch, getRepositoryType, getAllTags,
+  getCurrentBranch, getRepositoryType, getRepositorySummary,
+  getRemoteUrl, getRemotesFromPath, getAllTags,
+  addRemote, removeRemote, setRemoteURL,
+  merge, MergeResult,
+  rebase, RebaseResult,
+  getStashes, createDesktopStashEntry, popStashEntry,
 } from '../index.js'
 import {
   setupFixtureRepo, cleanupFixtureRepo, git,
@@ -19,6 +24,10 @@ beforeAll(() => {
   const fixture = setupFixtureRepo()
   repoPath = fixture.repoPath
   repo = fixture.repo
+
+  // Set a remote URL so getRemoteUrl / getRemotesFromPath have a known value
+  // (the bundle clone already creates an origin remote pointing to the bundle file)
+  git(repoPath, 'remote set-url origin https://github.com/user/repo.git')
 })
 
 describe('getRepositoryType', () => {
@@ -150,6 +159,182 @@ describe('Tag operations', () => {
     const tags = await getAllTags(repo)
     expect(tags.size).toBeGreaterThanOrEqual(1)
     expect(tags.has('v0.1.0')).toBe(true)
+  })
+})
+
+describe('getRepositorySummary', () => {
+  it('returns path, head, and currentBranch for a normal repo', async () => {
+    const summary = await getRepositorySummary(repoPath)
+    expect(summary).toBeTruthy()
+    expect(summary!.path).toBe(repoPath)
+    // HEAD should be a 40-char hex SHA
+    expect(summary!.head).toMatch(/^[a-f0-9]{40}$/)
+    expect(summary!.currentBranch).toBe('main')
+  })
+
+  it('returns currentBranch as undefined when HEAD is detached', async () => {
+    git(repoPath, 'checkout --detach')
+    const summary = await getRepositorySummary(repoPath)
+    expect(summary).toBeTruthy()
+    expect(summary!.path).toBe(repoPath)
+    expect(summary!.head).toMatch(/^[a-f0-9]{40}$/)
+    expect(summary!.currentBranch).toBeUndefined()
+    // Reset back for subsequent tests
+    git(repoPath, 'checkout main')
+  })
+
+  it('returns null for a bare repository', async () => {
+    const barePath = mkdtempSync(join(tmpdir(), 'gcctest-bare-'))
+    execSync(`git init --bare ${barePath}`, { stdio: 'pipe' })
+    const summary = await getRepositorySummary(barePath)
+    expect(summary).toBeNull()
+    execSync(`rm -rf ${barePath}`)
+  })
+
+  it('returns null for a non-existent path', async () => {
+    const summary = await getRepositorySummary('/nonexistent/path')
+    expect(summary).toBeNull()
+  })
+
+  it('returns null for a path that exists but is not a git repo', async () => {
+    const nonRepoPath = mkdtempSync(join(tmpdir(), 'gcctest-nonrepo-'))
+    const summary = await getRepositorySummary(nonRepoPath)
+    expect(summary).toBeNull()
+    execSync(`rm -rf ${nonRepoPath}`)
+  })
+})
+
+describe('getRemoteUrl', () => {
+  it('returns the URL for an existing remote', async () => {
+    const url = await getRemoteUrl(repoPath, 'origin')
+    expect(url).toBe('https://github.com/user/repo.git')
+  })
+
+  it('returns null for a non-existent remote', async () => {
+    const url = await getRemoteUrl(repoPath, 'nonexistent')
+    expect(url).toBeNull()
+  })
+
+  it('returns null for a non-repo path', async () => {
+    const nonRepoPath = mkdtempSync(join(tmpdir(), 'gcctest-nonrepo-'))
+    const url = await getRemoteUrl(nonRepoPath, 'origin')
+    expect(url).toBeNull()
+    execSync(`rm -rf ${nonRepoPath}`)
+  })
+})
+
+describe('getRemotesFromPath', () => {
+  it('lists all remotes for a valid repo', async () => {
+    const remotes = await getRemotesFromPath(repoPath)
+    expect(remotes.length).toBeGreaterThanOrEqual(1)
+    const origin = remotes.find(r => r.name === 'origin')
+    expect(origin).toBeTruthy()
+    expect(origin!.url).toBe('https://github.com/user/repo.git')
+  })
+
+  it('returns an empty array for a non-repo path', async () => {
+    const nonRepoPath = mkdtempSync(join(tmpdir(), 'gcctest-nonrepo-'))
+    const remotes = await getRemotesFromPath(nonRepoPath)
+    expect(remotes).toEqual([])
+    execSync(`rm -rf ${nonRepoPath}`)
+  })
+})
+
+describe('addRemote', () => {
+  it('adds a new remote and returns it', async () => {
+    const remote = await addRemote(repo, 'upstream', 'https://github.com/upstream/repo.git')
+    expect(remote.name).toBe('upstream')
+    expect(remote.url).toBe('https://github.com/upstream/repo.git')
+
+    // Verify it was persisted
+    const url = await getRemoteUrl(repoPath, 'upstream')
+    expect(url).toBe('https://github.com/upstream/repo.git')
+  })
+})
+
+describe('setRemoteURL', () => {
+  it('updates the URL of an existing remote', async () => {
+    const result = await setRemoteURL(repo, 'origin', 'https://github.com/user/new-repo.git')
+    expect(result).toBe(true)
+
+    // Verify it was changed
+    const url = await getRemoteUrl(repoPath, 'origin')
+    expect(url).toBe('https://github.com/user/new-repo.git')
+  })
+})
+
+describe('removeRemote', () => {
+  it('removes an existing remote silently', async () => {
+    // First confirm the remote exists
+    const beforeUrl = await getRemoteUrl(repoPath, 'upstream')
+    expect(beforeUrl).toBe('https://github.com/upstream/repo.git')
+
+    await removeRemote(repo, 'upstream')
+
+    // Verify it's gone
+    const afterUrl = await getRemoteUrl(repoPath, 'upstream')
+    expect(afterUrl).toBeNull()
+  })
+
+  it('silently succeeds when removing a non-existent remote', async () => {
+    // Should not throw
+    await expect(removeRemote(repo, 'nonexistent')).resolves.toBeUndefined()
+  })
+})
+
+describe('merge', () => {
+  it('merges feature/two into main', async () => {
+    const result = await merge(repo, 'feature/two')
+    expect(result).toBe(MergeResult.Success)
+  })
+
+  it('returns AlreadyUpToDate when merging an already-merged branch', async () => {
+    const result = await merge(repo, 'feature/two')
+    expect(result).toBe(MergeResult.AlreadyUpToDate)
+  })
+})
+
+describe('rebase', () => {
+  it('rebases feature/two onto feature/one', async () => {
+    // Get Branch objects with tip.sha required by the rebase API
+    const branches = await getBranches(repo)
+    const baseBranch = branches.find(b => b.nameWithoutRemote === 'feature/one')!
+    const targetBranch = branches.find(b => b.nameWithoutRemote === 'feature/two')!
+    expect(baseBranch).toBeTruthy()
+    expect(targetBranch).toBeTruthy()
+
+    const result = await rebase(repo, baseBranch, targetBranch)
+    expect(result).toBe(RebaseResult.CompletedWithoutError)
+  })
+})
+
+describe('stash', () => {
+  it('creates a stash entry and pops it back', async () => {
+    // Create a working directory change to stash
+    writeFileSync(join(repoPath, 'stash-test.txt'), 'stash me')
+    git(repoPath, 'add stash-test.txt')
+
+    // Create a stash entry
+    const created = await createDesktopStashEntry(repo, 'main', [], null)
+    expect(created).toBe(true)
+
+    // List stashes — should include our new entry
+    const stashes = await getStashes(repo)
+    expect(stashes.desktopEntries.length).toBeGreaterThanOrEqual(1)
+    const stashSha = stashes.desktopEntries[0].stashSha
+    expect(stashSha).toBeTruthy()
+
+    // Pop it back — changes should be restored
+    await popStashEntry(repo, stashSha)
+    const statusAfterPop = await getStatus(repo)
+    expect(statusAfterPop).toBeTruthy()
+    const stashFile = statusAfterPop!.workingDirectory.files.find(
+      f => f.path === 'stash-test.txt'
+    )
+    expect(stashFile).toBeTruthy()
+
+    // Clean up: discard the restored file (stash pop restores to working tree, not index)
+    git(repoPath, 'checkout -- stash-test.txt')
   })
 })
 

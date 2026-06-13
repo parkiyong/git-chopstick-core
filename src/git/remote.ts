@@ -83,18 +83,30 @@ export async function getRemoteURL(
   repository: Repository,
   name: string
 ): Promise<string | null> {
+  return getRemoteUrl(repository.path, name)
+}
+
+/**
+ * Get the URL for a remote by name using a path string.
+ *
+ * Returns null if the remote could not be found.
+ */
+export async function getRemoteUrl(
+  path: string,
+  name: string
+): Promise<string | null> {
   const result = await git(
-    ['remote', 'get-url', name],
-    repository.path,
-    'getRemoteURL',
-    { successExitCodes: new Set([0, 2, 128]) }
+    ['config', '--get', `remote.${name}.url`],
+    path,
+    'getRemoteUrl',
+    { successExitCodes: new Set([0, 1]) }
   )
 
   if (result.exitCode !== 0) {
     return null
   }
 
-  return result.stdout
+  return result.stdout.trim()
 }
 
 /**
